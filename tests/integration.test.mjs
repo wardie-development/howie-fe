@@ -136,6 +136,64 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
   assert.equal(booking.data.client_name, 'Cliente de teste');
   assert.equal(booking.data.professional_name, 'Profissional de teste');
   assert.equal(booking.data.price, '75.00');
+  const prefs = await request('/api/reminder-settings', { cookie });
+  assert.equal(prefs.data.enabled, false);
+  const enabled = await request('/api/reminder-settings', {
+    method: 'PATCH',
+    cookie,
+    body: { enabled: true },
+  });
+  assert.equal(enabled.response.status, 200);
+  const rules = await request('/api/reminder-rules', { cookie });
+  assert.equal(rules.data.count, 1);
+  const rule = rules.data.results[0];
+  assert.equal(rule.minutes_before, 1440);
+  const reminderList = await request(`/api/reminders?appointment=${booking.data.id}`, { cookie });
+  assert.equal(reminderList.data.count, 1);
+  const reminder = reminderList.data.results[0];
+  assert.equal(new Date(booking.data.starts_at) - new Date(reminder.scheduled_at), 86400000);
+  assert.equal(reminder.customized, false);
+  const customized = await request(`/api/reminders/${reminder.id}`, {
+    method: 'PATCH',
+    cookie,
+    body: { message: 'Olá, {nome}! Até amanhã.' },
+  });
+  assert.equal(customized.response.status, 200, JSON.stringify(customized.data));
+  assert.equal(customized.data.customized, true);
+  const changedRule = await request(`/api/reminder-rules/${rule.id}`, {
+    method: 'PATCH',
+    cookie,
+    body: { message: 'Sua presença faz diferença, {nome}.' },
+  });
+  assert.equal(changedRule.response.status, 200);
+  const applied = await request(`/api/reminder-rules/${rule.id}/apply`, {
+    method: 'POST',
+    cookie,
+    body: {},
+  });
+  assert.equal(applied.data.updated, 0);
+  const restored = await request(`/api/reminders/${reminder.id}/restore`, {
+    method: 'POST',
+    cookie,
+    body: {},
+  });
+  assert.equal(restored.response.status, 200);
+  assert.equal(restored.data.customized, false);
+  assert.equal(restored.data.message, changedRule.data.message);
+  const invalidVariable = await request(`/api/reminders/${reminder.id}`, {
+    method: 'PATCH',
+    cookie,
+    body: { message: 'Olá {nome.__class__}' },
+  });
+  assert.equal(invalidVariable.response.status, 400);
+  const consent = await request(`/api/clients/${client.data.id}`, {
+    method: 'PATCH',
+    cookie,
+    body: { reminders_opt_in: true },
+  });
+  assert.equal(consent.response.status, 200);
+  assert.ok(consent.data.reminders_opted_in_at);
+
   assert.equal(
     (await request('/api/appointments', { method: 'POST', cookie, body: payload })).response.status,
     400,
@@ -162,6 +220,12 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     404,
   );
   assert.equal((await request('/api/services', { cookie: otherCookie })).data.count, 0);
+  assert.equal(
+    (await request(`/api/reminders/${reminder.id}`, { cookie: otherCookie })).response.status,
+    404,
+  );
+  assert.equal((await request('/api/reminders', { cookie: otherCookie })).data.count, 0);
+
   assert.equal(
     (
       await request(`/api/appointments/${booking.data.id}/status`, {

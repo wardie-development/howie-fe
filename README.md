@@ -61,3 +61,7 @@ Antes de publicar: aplicar as migrações do backend (`portal.0001` e `ia.0006`)
 
 O backend guarda pedidos de demonstração no Admin, sem disparo de e-mail automático. Cada usuário do portal pertence a uma empresa. Usuários existentes do Django precisam de vínculo explícito em **Company memberships** no Admin; cadastrar conta não dá acesso a empresas pré-existentes.
 # howie-fe
+
+## Lembretes
+
+`/app/lembretes` configura regras da empresa, ativação e agente responsável. Ao ativar sem regras ativas, cria o padrão de 24 horas e gera cópias para os agendamentos futuros que ainda não têm lembretes. O detalhe do evento na agenda permite personalizar, adicionar, desativar e restaurar lembretes individualmente. As mensagens têm variáveis e prévia. Aprovação da mensagem no WhatsApp e autorização do cliente (em Clientes) são acompanhadas na interface. Backend e rotina periódica publicados em 21/10/2026; publicar este frontend na Vercel para disponibilizar as telas.

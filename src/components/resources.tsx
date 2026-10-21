@@ -142,6 +142,11 @@ export const configs: Record<string, Config> = {
     fields: [
       { ...name, label: 'Nome do cliente' },
       {
+        name: 'reminders_opt_in',
+        label: 'O cliente autorizou receber lembretes de agendamento pelo WhatsApp',
+        type: 'checkbox',
+      },
+      {
         name: 'phone',
         label: 'WhatsApp com país e DDD',
         type: 'tel',
@@ -307,15 +312,17 @@ export default function Resources({ section }: { section: string }) {
     config.fields.forEach((field) => {
       const value = String(input[field.name] || '');
       body[field.name] =
-        field.optional && !value
-          ? null
-          : field.source
-            ? Number(value)
-            : field.type === 'number'
-              ? value
-              : field.type === 'datetime-local' && value
-                ? `${value}:00-03:00`
-                : value;
+        field.type === 'checkbox'
+          ? Boolean(input[field.name])
+          : field.optional && !value
+            ? null
+            : field.source
+              ? Number(value)
+              : field.type === 'number'
+                ? value
+                : field.type === 'datetime-local' && value
+                  ? `${value}:00-03:00`
+                  : value;
     });
     try {
       const id = editing !== true && editing ? editing.id : null;
@@ -469,7 +476,16 @@ export default function Resources({ section }: { section: string }) {
                 let value = editing !== true ? editing[field.name] : '';
                 if (field.type === 'datetime-local' && value) value = localInput(String(value));
                 return (
-                  <label key={field.name} className={field.type === 'textarea' ? 'wide' : ''}>
+                  <label
+                    key={field.name}
+                    className={
+                      field.type === 'checkbox'
+                        ? 'checkbox-label wide'
+                        : field.type === 'textarea'
+                          ? 'wide'
+                          : ''
+                    }
+                  >
                     {field.label}
                     {field.optional && <span className="optional">Opcional</span>}
                     {field.source || field.options ? (
@@ -492,6 +508,8 @@ export default function Resources({ section }: { section: string }) {
                           </option>
                         ))}
                       </select>
+                    ) : field.type === 'checkbox' ? (
+                      <input type="checkbox" name={field.name} defaultChecked={Boolean(value)} />
                     ) : field.type === 'textarea' ? (
                       <textarea
                         name={field.name}

@@ -5,6 +5,7 @@ import Agenda from '@/components/agenda';
 import Conversations from '@/components/conversations';
 import Usage from '@/components/usage';
 import Settings from '@/components/settings';
+import Reminders from '@/components/reminders';
 import Resources from '@/components/resources';
 export default async function PortalPage({ params }: { params: Promise<{ section?: string[] }> }) {
   const { section } = await params;
@@ -12,6 +13,7 @@ export default async function PortalPage({ params }: { params: Promise<{ section
   if (!name) return <Dashboard />;
   if (name === 'agentes') return <Agents />;
   if (name === 'agenda') return <Agenda />;
+  if (name === 'lembretes') return <Reminders />;
   if (name === 'conversas') return <Conversations />;
   if (name === 'consumo') return <Usage />;
   if (name === 'configuracoes') return <Settings />;

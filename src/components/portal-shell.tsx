@@ -55,6 +55,7 @@ const groups = [
     label: 'AGENDA',
     items: [
       { href: '/app/agenda', label: 'Meus agendamentos', icon: CalendarDays },
+      { href: '/app/lembretes', label: 'Lembretes', icon: Clock3 },
       { href: '/app/bloqueios', label: 'Bloqueios de horário', icon: Ban },
     ],
   },

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useId } from 'react';
 import { X, LoaderCircle, AlertCircle, ArrowUpRight, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { ApiError } from '@/lib/api';
@@ -127,6 +127,9 @@ export function SearchField({
     </div>
   );
 }
+const modalStack: HTMLElement[] = [];
+let modalBodyOverflow = '';
+
 export function Modal({
   title,
   description,
@@ -138,13 +141,16 @@ export function Modal({
   children: React.ReactNode;
   onClose: () => void;
 }) {
+  const titleId = useId();
   const ref = useRef<HTMLDivElement>(null),
     closeRef = useRef(onClose);
   closeRef.current = onClose;
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
+    if (!modalStack.length) modalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const element = ref.current;
+    if (element) modalStack.push(element);
     const focusable = () =>
       Array.from(
         ref.current?.querySelectorAll<HTMLElement>(
@@ -153,6 +159,7 @@ export function Modal({
       );
     focusable()[0]?.focus();
     function key(event: KeyboardEvent) {
+      if (modalStack[modalStack.length - 1] !== ref.current) return;
       if (event.key === 'Escape') closeRef.current();
       if (event.key === 'Tab') {
         const items = focusable();
@@ -169,7 +176,9 @@ export function Modal({
     }
     document.addEventListener('keydown', key);
     return () => {
-      document.body.style.overflow = overflow;
+      const index = modalStack.indexOf(element!);
+      if (index >= 0) modalStack.splice(index, 1);
+      document.body.style.overflow = modalStack.length ? 'hidden' : modalBodyOverflow;
       document.removeEventListener('keydown', key);
       previous?.focus();
     };
@@ -181,16 +190,10 @@ export function Modal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-        ref={ref}
-      >
+      <div className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId} ref={ref}>
         <div className="modal-header">
           <div>
-            <h2 id="modal-title">{title}</h2>
+            <h2 id={titleId}>{title}</h2>
             {description && <p>{description}</p>}
           </div>
           <button className="icon-button" onClick={onClose} aria-label="Fechar">

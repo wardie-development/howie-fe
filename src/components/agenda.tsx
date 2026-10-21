@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
+import { AppointmentReminders } from './reminders';
 import { api, list, money, dateTime } from '@/lib/api';
 import type { Appointment, Professional, Offering, Client, Block } from '@/lib/types';
 import { PageHeader, Modal, Notice, Loading, ErrorState, useLoad } from './ui';
@@ -568,6 +569,7 @@ export default function Agenda() {
                 </button>
               </form>
             )}
+            <AppointmentReminders key={selected.id} appointment={selected} />
             {error && <Notice error message={error} />}
             <div className="modal-footer">
               {selected.status !== 'canceled' && (

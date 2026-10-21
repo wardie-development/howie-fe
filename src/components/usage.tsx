@@ -22,28 +22,28 @@ export default function Usage() {
         {[
           {
             label: 'Conversas atendidas',
-            value: summary.conversations_30d.toLocaleString('pt-BR'),
+            value: summary.conversations_30d?.toLocaleString('pt-BR') ?? '—',
             icon: MessageCircle,
             detail: 'Conversas com ao menos uma interação concluída',
             tone: 'blue',
           },
           {
             label: 'Clientes atendidos',
-            value: summary.clients_assisted_30d.toLocaleString('pt-BR'),
+            value: summary.clients_assisted_30d?.toLocaleString('pt-BR') ?? '—',
             icon: Users,
             detail: 'Cada cliente contado uma única vez',
             tone: 'yellow',
           },
           {
             label: 'Interações concluídas',
-            value: summary.interactions_30d.toLocaleString('pt-BR'),
+            value: summary.interactions_30d?.toLocaleString('pt-BR') ?? '—',
             icon: Activity,
             detail: 'Solicitações processadas pelos agentes',
             tone: 'green',
           },
           {
             label: 'Agendamentos criados',
-            value: summary.appointments_created_30d.toLocaleString('pt-BR'),
+            value: summary.appointments_created_30d?.toLocaleString('pt-BR') ?? '—',
             icon: CalendarDays,
             detail: 'Pelo agente ou pela equipe · exclui cancelados',
             tone: 'purple',
@@ -108,7 +108,7 @@ export default function Usage() {
                           <ul>
                             {item.tools.map((tool) => (
                               <li key={tool.id}>
-                                {tool.label} ·{' '}
+                                {tool.label || 'Ação de atendimento'} ·{' '}
                                 {(
                                   {
                                     success: 'Concluída',

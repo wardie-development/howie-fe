@@ -84,7 +84,7 @@ export default function Dashboard() {
           },
           {
             label: 'Interações concluídas',
-            value: data.interactions_30d,
+            value: data.interactions_30d ?? '—',
             icon: Activity,
             detail: 'Últimos 30 dias',
             tone: 'green',
@@ -248,7 +248,7 @@ export default function Dashboard() {
           <h2>Seu atendimento em movimento.</h2>
           <p>Veja quantas conversas receberam atendimento e acompanhe as ações dos seus agentes.</p>
           <div>
-            <strong>{data.conversations_30d.toLocaleString('pt-BR')}</strong>
+            <strong>{data.conversations_30d?.toLocaleString('pt-BR') ?? '—'}</strong>
             <span>conversas atendidas nos últimos 30 dias</span>
           </div>
           <Link href="/app/consumo" className="text-link">
