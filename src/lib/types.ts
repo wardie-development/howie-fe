@@ -1,6 +1,6 @@
 export type Profile = {
   user: { id: number; name: string; email: string };
-  company: { id: number; name: string; ai_backend: string; logo: string | null };
+  company: { id: number; name: string; logo: string | null };
 };
 export type Agent = {
   id: number;
@@ -71,12 +71,9 @@ export type Execution = {
   id: number;
   client_name: string;
   agent_name: string;
-  model: string;
   status: string;
-  input_tokens: number | null;
-  output_tokens: number | null;
   created_at: string;
-  tools: { id: number; name: string; status: string }[];
+  tools: { id: number; label: string; status: string }[];
 };
 export type Dashboard = {
   agents: number;
@@ -89,12 +86,10 @@ export type Dashboard = {
   clients: number;
   services: number;
   professionals: number;
-  usage: {
-    input_tokens: number;
-    output_tokens: number;
-    estimated_usd: string;
-    unpriced_models: number;
-  };
+  interactions_30d: number;
+  conversations_30d: number;
+  clients_assisted_30d: number;
+  appointments_created_30d: number;
   activity: { day: string; count: number }[];
   upcoming: Appointment[];
 };

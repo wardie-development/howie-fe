@@ -34,7 +34,7 @@ export default function Settings() {
       <PageHeader
         eyebrow="SEU ESPAÇO. SUAS ESCOLHAS."
         title="Os detalhes fazem diferença."
-        description="Ajuste as informações da sua empresa e as preferências da IA."
+        description="Mantenha as informações da sua empresa atualizadas."
       />
       {notice && <Notice message={notice} />}
       <div className="settings-grid">
@@ -50,16 +50,6 @@ export default function Settings() {
             <label>
               Nome da empresa
               <input name="name" defaultValue={profile.company.name} required maxLength={255} />
-            </label>
-            <label>
-              Provedor de inteligência artificial
-              <select name="ai_backend" defaultValue={profile.company.ai_backend}>
-                <option value="claude">Claude · Haiku</option>
-                <option value="gemini">Google Gemini</option>
-              </select>
-              <small className="field-hint">
-                A alteração é aplicada às próximas execuções dos seus agentes.
-              </small>
             </label>
             {error && <Notice error message={error} />}
             <button className="button primary small" disabled={busy}>

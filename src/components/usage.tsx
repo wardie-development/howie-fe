@@ -1,5 +1,5 @@
 'use client';
-import { Activity, Coins, ArrowDownLeft, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Activity, CalendarDays, MessageCircle, Users, Sparkles } from 'lucide-react';
 import { api, list, dateTime } from '@/lib/api';
 import type { Dashboard, Execution } from '@/lib/types';
 import { PageHeader, Loading, ErrorState, EmptyState, useLoad } from './ui';
@@ -15,37 +15,37 @@ export default function Usage() {
     <>
       <PageHeader
         eyebrow="CLAREZA A CADA INTERAÇÃO"
-        title="Seu consumo, sem mistério."
-        description="Acompanhe o uso da IA e a atividade dos seus agentes."
+        title="Seu atendimento em números."
+        description="Veja quem recebeu atendimento e acompanhe as ações dos seus agentes nos últimos 30 dias."
       />
       <div className="stat-grid">
         {[
           {
-            label: 'Tokens de entrada',
-            value: summary.usage.input_tokens.toLocaleString('pt-BR'),
-            icon: ArrowDownLeft,
-            detail: 'Contexto enviado à IA',
+            label: 'Conversas atendidas',
+            value: summary.conversations_30d.toLocaleString('pt-BR'),
+            icon: MessageCircle,
+            detail: 'Conversas com ao menos uma interação concluída',
             tone: 'blue',
           },
           {
-            label: 'Tokens de saída',
-            value: summary.usage.output_tokens.toLocaleString('pt-BR'),
-            icon: ArrowUpRight,
-            detail: 'Conteúdo gerado pela IA',
+            label: 'Clientes atendidos',
+            value: summary.clients_assisted_30d.toLocaleString('pt-BR'),
+            icon: Users,
+            detail: 'Cada cliente contado uma única vez',
             tone: 'yellow',
           },
           {
-            label: 'Estimativa da IA',
-            value: `US$ ${Number(summary.usage.estimated_usd).toLocaleString('pt-BR', { minimumFractionDigits: 4 })}`,
-            icon: Coins,
-            detail: 'Últimos 30 dias · USD',
+            label: 'Interações concluídas',
+            value: summary.interactions_30d.toLocaleString('pt-BR'),
+            icon: Activity,
+            detail: 'Solicitações processadas pelos agentes',
             tone: 'green',
           },
           {
-            label: 'Execuções com erro',
-            value: summary.errors_30d,
-            icon: Activity,
-            detail: 'Últimos 30 dias',
+            label: 'Agendamentos criados',
+            value: summary.appointments_created_30d.toLocaleString('pt-BR'),
+            icon: CalendarDays,
+            detail: 'Pelo agente ou pela equipe · exclui cancelados',
             tone: 'purple',
           },
         ].map(({ label, value, icon: Icon, detail, tone }) => (
@@ -62,28 +62,25 @@ export default function Usage() {
         ))}
       </div>
       <div className="info-strip">
-        <Coins size={19} />
+        <MessageCircle size={19} />
         <p>
-          Estimativa informativa calculada pelas tarifas configuradas para cada modelo. Não é uma
-          fatura e não inclui WhatsApp, infraestrutura ou assinatura.
-          {summary.usage.unpriced_models > 0
-            ? ` Há ${summary.usage.unpriced_models} modelo(s) sem tarifa configurada, excluídos desta estimativa.`
-            : ''}
+          Uma conversa pode ter várias interações. Aqui você acompanha o atendimento realizado nos
+          últimos 30 dias, sem contar novas tentativas da mesma solicitação.
         </p>
       </div>
       <section className="panel resource-panel">
         <div className="panel-head">
           <div>
             <h2>Atividade dos agentes</h2>
-            <p>Execuções e ferramentas utilizadas no atendimento.</p>
+            <p>Histórico recente de atendimentos e ações na sua agenda.</p>
           </div>
-          <span className="count-tag">{executions.length} execuções</span>
+          <span className="count-tag">{executions.length} registros</span>
         </div>
         {!executions.length ? (
           <EmptyState
             icon={Sparkles}
             title="O próximo atendimento conta uma história."
-            description="Assim que o agente atender, você verá os registros de uso, tokens e ferramentas por aqui."
+            description="Assim que as conversas começarem, você verá quem foi atendido e quais ações o agente realizou."
           />
         ) : (
           <div className="table-scroll">
@@ -92,9 +89,7 @@ export default function Usage() {
                 <tr>
                   <th>Data</th>
                   <th>Agente / cliente</th>
-                  <th>Modelo</th>
-                  <th>Tokens</th>
-                  <th>Ferramentas</th>
+                  <th>Ações no atendimento</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -107,27 +102,27 @@ export default function Usage() {
                       <small className="table-sub">{item.client_name}</small>
                     </td>
                     <td>
-                      <span className="model-label">{item.model}</span>
-                    </td>
-                    <td>
-                      {((item.input_tokens || 0) + (item.output_tokens || 0)).toLocaleString(
-                        'pt-BR',
-                      )}
-                    </td>
-                    <td>
                       {item.tools.length ? (
                         <details className="tool-details">
-                          <summary>{item.tools.length} chamada(s)</summary>
+                          <summary>{item.tools.length} ação(ões)</summary>
                           <ul>
                             {item.tools.map((tool) => (
                               <li key={tool.id}>
-                                {tool.name} · {tool.status === 'success' ? 'Sucesso' : 'Erro'}
+                                {tool.label} ·{' '}
+                                {(
+                                  {
+                                    success: 'Concluída',
+                                    error: 'Não concluída',
+                                    running: 'Em andamento',
+                                    pending: 'Aguardando',
+                                  } as Record<string, string>
+                                )[tool.status] || 'Aguardando'}
                               </li>
                             ))}
                           </ul>
                         </details>
                       ) : (
-                        '—'
+                        'Conversa com o cliente'
                       )}
                     </td>
                     <td>
@@ -136,12 +131,12 @@ export default function Usage() {
                       >
                         {(
                           {
-                            success: 'Sucesso',
-                            error: 'Erro',
+                            success: 'Concluído',
+                            error: 'Precisa de atenção',
                             running: 'Em andamento',
-                            pending: 'Pendente',
+                            pending: 'Aguardando',
                           } as Record<string, string>
-                        )[item.status] || item.status}
+                        )[item.status] || 'Aguardando'}
                       </span>
                     </td>
                   </tr>

@@ -11,7 +11,6 @@ import {
   Plus,
   Users,
   Clock3,
-  Coins,
   CheckCircle2,
 } from 'lucide-react';
 import { api, money, dateTime } from '@/lib/api';
@@ -84,10 +83,10 @@ export default function Dashboard() {
             tone: 'purple',
           },
           {
-            label: 'Atendimentos da IA',
-            value: data.executions_30d,
+            label: 'Interações concluídas',
+            value: data.interactions_30d,
             icon: Activity,
-            detail: 'Execuções nos últimos 30 dias',
+            detail: 'Últimos 30 dias',
             tone: 'green',
           },
         ].map(({ label, value, icon: Icon, detail, tone }) => (
@@ -213,7 +212,7 @@ export default function Dashboard() {
           <div className="panel-head">
             <div>
               <h2>Conversas em movimento</h2>
-              <p>Execuções da IA nos últimos 30 dias.</p>
+              <p>Interações concluídas nos últimos 30 dias.</p>
             </div>
             <Link href="/app/consumo" className="text-link">
               Ver atividade <ArrowUpRight size={16} />
@@ -222,7 +221,7 @@ export default function Dashboard() {
           {data.activity.length ? (
             <div className="activity-chart">
               {data.activity.map((day) => (
-                <div key={day.day} title={`${day.day}: ${day.count} execuções`}>
+                <div key={day.day} title={`${day.day}: ${day.count} interações concluídas`}>
                   <span>{day.count}</span>
                   <i style={{ height: `${Math.max(8, (day.count / max) * 110)}px` }} />
                   <small>
@@ -244,18 +243,16 @@ export default function Dashboard() {
         </section>
         <section className="usage-preview">
           <span className="icon-box yellow-bg">
-            <Coins size={22} />
+            <MessageCircle size={22} />
           </span>
-          <h2>Clareza sobre seu consumo.</h2>
-          <p>Acompanhe tokens e estimativas de custo da IA, sem perder de vista sua operação.</p>
+          <h2>Seu atendimento em movimento.</h2>
+          <p>Veja quantas conversas receberam atendimento e acompanhe as ações dos seus agentes.</p>
           <div>
-            <strong>
-              {(data.usage.input_tokens + data.usage.output_tokens).toLocaleString('pt-BR')}
-            </strong>
-            <span>tokens nos últimos 30 dias</span>
+            <strong>{data.conversations_30d.toLocaleString('pt-BR')}</strong>
+            <span>conversas atendidas nos últimos 30 dias</span>
           </div>
           <Link href="/app/consumo" className="text-link">
-            Explorar meu consumo <ArrowRight size={17} />
+            Explorar minha atividade <ArrowRight size={17} />
           </Link>
         </section>
       </div>
