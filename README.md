@@ -65,3 +65,7 @@ O backend guarda pedidos de demonstração no Admin, sem disparo de e-mail autom
 ## Lembretes
 
 `/app/lembretes` configura regras da empresa, ativação e agente responsável. Ao ativar sem regras ativas, cria o padrão de 24 horas e gera cópias para os agendamentos futuros que ainda não têm lembretes. O detalhe do evento na agenda permite personalizar, adicionar, desativar e restaurar lembretes individualmente. As mensagens têm variáveis e prévia. Aprovação da mensagem no WhatsApp e autorização do cliente (em Clientes) são acompanhadas na interface. Backend e rotina periódica publicados em 21/10/2026; publicar este frontend na Vercel para disponibilizar as telas.
+
+## Atendimentos e Financeiro
+
+`/app/finalizar` mostra horários encerrados para baixa individual ou em lote. `/app/financeiro` apresenta totais e detalhamento por serviço/profissional. `/app/financeiro/atendimentos` lista os mesmos agendamentos, com filtros de resultado, pagamento e período. O detalhe do evento na agenda também abre os registros financeiros. Há descontos justificados, pagamentos antecipados/parciais, devoluções e correção auditada da finalização. Os registros são manuais; recebimentos e devoluções não executam transações bancárias. Backend financeiro publicado em 21/10/2026; publicar este frontend na Vercel para disponibilizar as novas telas.

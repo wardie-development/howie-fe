@@ -130,7 +130,7 @@ export default function Agents() {
                 {agent.connected ? <MessageCircle size={16} /> : <Unplug size={16} />}
                 <span>
                   {agent.connected
-                    ? 'Número de WhatsApp vinculado'
+                    ? 'Número de WhatsApp identificado'
                     : 'WhatsApp ainda não vinculado'}
                 </span>
               </div>

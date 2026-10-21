@@ -4335,3 +4335,34 @@ fieldset {
 .reminder-actions legend { padding: 0 8px; font-weight: 600; }
 .appointment-reminders { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid #e2e6e3; }
 @media (max-width: 600px) { .reminder-list { padding: 0 14px 14px; } .reminder-settings { padding: 18px; } .reminder-toolbar .button { flex: 1 1 140px; } }
+
+/* Attendance completion and operational finance */
+.finance-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; padding: 20px; margin-bottom: 24px; }
+.finance-filters label { display: grid; gap: 7px; flex: 1 1 145px; font-size: 12px; font-weight: 600; }
+.finance-filters input, .finance-filters select { min-width: 0; width: 100%; }
+.finance-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.finance-stat-grid .stat-card > strong { font-size: clamp(22px, 2.1vw, 34px); overflow-wrap: anywhere; }
+.finance-breakdowns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+.finance-list-tools { display: flex; justify-content: space-between; align-items: end; gap: 16px; padding: 0 24px 20px; flex-wrap: wrap; }
+.finance-search { display: grid; gap: 7px; font-size: 12px; width: min(100%, 350px); }
+.finance-detail { padding: 24px; display: grid; gap: 24px; }
+.finance-detail-badges, .finance-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.finance-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.finance-detail-grid > div { padding: 16px; background: #f4f6f2; border-radius: 12px; display: grid; gap: 7px; }
+.finance-detail-grid small { color: #637067; }
+.finance-detail-grid strong { font-size: 21px; overflow-wrap: anywhere; }
+.finance-total-line { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #eef3eb; border-radius: 12px; }
+.finance-total-line strong { font-size: 24px; }
+.finance-payment-list { display: grid; margin-top: 14px; }
+.finance-payment-list > div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e1e6e0; }
+.finance-payment-list small, .finance-audit small { display: block; margin-top: 5px; color: #657167; font-size: 11px; line-height: 1.6; }
+.finance-negative { color: #9e4d46; }
+.finance-audit { border-top: 1px solid #e1e6e0; padding-top: 16px; }
+.finance-audit > div { padding: 12px 0; }
+.finance-audit p { margin-top: 6px; font-size: 12px; }
+.appointment-finance { border-top: 1px solid #e1e6e0; padding-top: 20px; display: grid; gap: 12px; }
+.appointment-finance h3 { display: flex; gap: 8px; align-items: center; }
+.appointment-finance p { color: #657167; font-size: 12px; line-height: 1.7; margin-top: 7px; }
+.appointment-finance > button { justify-self: start; }
+@media (max-width: 1000px) { .finance-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .finance-breakdowns { grid-template-columns: 1fr; } }
+@media (max-width: 500px) { .finance-stat-grid { grid-template-columns: 1fr; } .finance-detail { padding: 18px; } .finance-detail-grid strong { font-size: 18px; } .finance-list-tools { padding: 0 16px 16px; } }

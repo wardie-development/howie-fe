@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { AppointmentReminders } from './reminders';
+import { AppointmentFinance } from './finance';
 import { api, list, money, dateTime } from '@/lib/api';
 import type { Appointment, Professional, Offering, Client, Block } from '@/lib/types';
 import { PageHeader, Modal, Notice, Loading, ErrorState, useLoad } from './ui';
@@ -512,7 +513,11 @@ export default function Agenda() {
             <span
               className={`status-pill ${selected.status === 'confirmed' ? 'positive' : 'neutral'}`}
             >
-              {labels[selected.status]}
+              {selected.financial_state === 'completed'
+                ? 'Realizado'
+                : selected.financial_state === 'no_show'
+                  ? 'Não compareceu'
+                  : labels[selected.status]}
             </span>
             <dl>
               <div>
@@ -553,45 +558,60 @@ export default function Agenda() {
               </div>
             </dl>
             {selected.notes && <p className="appointment-notes">{selected.notes}</p>}
-            {selected.status !== 'canceled' && (
-              <form onSubmit={reschedule} className="reschedule-form">
-                <label>
-                  Remarcar para
-                  <input
-                    name="starts_at"
-                    type="datetime-local"
-                    required
-                    defaultValue={inputDate(selected.starts_at)}
-                  />
-                </label>
-                <button className="button secondary small" disabled={busy}>
-                  Remarcar
-                </button>
-              </form>
-            )}
+            {selected.status !== 'canceled' &&
+              !['completed', 'no_show'].includes(selected.financial_state || '') && (
+                <form onSubmit={reschedule} className="reschedule-form">
+                  <label>
+                    Remarcar para
+                    <input
+                      name="starts_at"
+                      type="datetime-local"
+                      required
+                      defaultValue={inputDate(selected.starts_at)}
+                    />
+                  </label>
+                  <button className="button secondary small" disabled={busy}>
+                    Remarcar
+                  </button>
+                </form>
+              )}
+            <AppointmentFinance
+              appointment={selected}
+              onUpdated={() => {
+                appointments.reload();
+                api<Appointment>(`appointments/${selected.id}/`)
+                  .then((updated) =>
+                    setSelected((current) => (current?.id === updated.id ? updated : current)),
+                  )
+                  .catch(() => {});
+              }}
+            />
             <AppointmentReminders key={selected.id} appointment={selected} />
             {error && <Notice error message={error} />}
             <div className="modal-footer">
-              {selected.status !== 'canceled' && (
-                <button
-                  className="button danger-outline small"
-                  onClick={() => changeStatus('canceled')}
-                  disabled={busy}
-                >
-                  <Ban size={15} />
-                  Cancelar agendamento
-                </button>
-              )}
-              {selected.status !== 'confirmed' && selected.status !== 'canceled' && (
-                <button
-                  className="button primary small"
-                  onClick={() => changeStatus('confirmed')}
-                  disabled={busy}
-                >
-                  <Check size={15} />
-                  Confirmar presença
-                </button>
-              )}
+              {selected.status !== 'canceled' &&
+                !['completed', 'no_show'].includes(selected.financial_state || '') && (
+                  <button
+                    className="button danger-outline small"
+                    onClick={() => changeStatus('canceled')}
+                    disabled={busy}
+                  >
+                    <Ban size={15} />
+                    Cancelar agendamento
+                  </button>
+                )}
+              {selected.status !== 'confirmed' &&
+                selected.status !== 'canceled' &&
+                !['completed', 'no_show'].includes(selected.financial_state || '') && (
+                  <button
+                    className="button primary small"
+                    onClick={() => changeStatus('confirmed')}
+                    disabled={busy}
+                  >
+                    <Check size={15} />
+                    Confirmar presença
+                  </button>
+                )}
             </div>
           </div>
         </Modal>

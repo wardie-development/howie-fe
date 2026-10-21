@@ -136,6 +136,39 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
   assert.equal(booking.data.client_name, 'Cliente de teste');
   assert.equal(booking.data.professional_name, 'Profissional de teste');
   assert.equal(booking.data.price, '75.00');
+  const financeDetail = await request(`/api/finance/appointments/${booking.data.id}`, { cookie });
+  assert.equal(financeDetail.response.status, 200, JSON.stringify(financeDetail.data));
+  assert.equal(financeDetail.data.price_snapshot, '75.00');
+  assert.equal(financeDetail.data.financial_state, 'pending');
+  assert.equal(
+    (
+      await request(`/api/finance/appointments/${booking.data.id}/finalize`, {
+        method: 'POST',
+        cookie,
+        body: { status: 'completed' },
+      })
+    ).response.status,
+    400,
+  );
+  const paymentBody = { amount: '25.00', method: 'pix', request_id: crypto.randomUUID() };
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const receipt = await request(`/api/finance/appointments/${booking.data.id}/payments`, {
+      method: 'POST',
+      cookie,
+      body: paymentBody,
+    });
+    assert.equal(receipt.response.status, 200, JSON.stringify(receipt.data));
+    assert.equal(receipt.data.payment_status, 'partial');
+    assert.equal(receipt.data.payments.length, 1);
+    assert.equal(receipt.data.balance, '50.00');
+  }
+  const financeSummary = await request('/api/finance/overview', { cookie });
+  assert.equal(financeSummary.response.status, 200, JSON.stringify(financeSummary.data));
+  assert.equal(Number(financeSummary.data.received), 25);
+  assert.equal(Number(financeSummary.data.completed), 0);
+  const partial = await request('/api/finance/appointments?payment_status=partial', { cookie });
+  assert.equal(partial.data.count, 1);
+
   const prefs = await request('/api/reminder-settings', { cookie });
   assert.equal(prefs.data.enabled, false);
   const enabled = await request('/api/reminder-settings', {
@@ -225,6 +258,12 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     404,
   );
   assert.equal((await request('/api/reminders', { cookie: otherCookie })).data.count, 0);
+  assert.equal(
+    (await request(`/api/finance/appointments/${booking.data.id}`, { cookie: otherCookie }))
+      .response.status,
+    404,
+  );
+  assert.equal((await request('/api/finance/appointments', { cookie: otherCookie })).data.count, 0);
 
   assert.equal(
     (
@@ -256,6 +295,18 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     ).response.status,
     200,
   );
+
+  const canceledAccount = await request(`/api/finance/appointments/${booking.data.id}`, { cookie });
+  assert.equal(canceledAccount.data.financial_state, 'canceled');
+  assert.equal(canceledAccount.data.refund_due, '25.00');
+  const returned = await request(`/api/finance/appointments/${booking.data.id}/payments`, {
+    method: 'POST',
+    cookie,
+    body: { amount: '25.00', kind: 'refund', method: 'pix', request_id: crypto.randomUUID() },
+  });
+  assert.equal(returned.response.status, 200, JSON.stringify(returned.data));
+  assert.equal(returned.data.refund_due, '0.00');
+  assert.equal(returned.data.payments.length, 2);
   assert.equal(
     (await request('/api/auth/logout', { method: 'POST', cookie, body: {} })).response.status,
     204,

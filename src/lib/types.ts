@@ -55,6 +55,7 @@ export type Appointment = {
   starts_at: string;
   ends_at: string;
   status: 'pending' | 'scheduled' | 'confirmed' | 'canceled';
+  financial_state?: 'pending' | 'completed' | 'no_show' | 'canceled';
   price: string;
   notes: string | null;
 };

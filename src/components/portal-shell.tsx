@@ -21,6 +21,9 @@ import {
   CircleHelp,
   PanelLeftClose,
   Ban,
+  Wallet,
+  Coins,
+  CheckCheck,
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { api } from '@/lib/api';
@@ -55,8 +58,16 @@ const groups = [
     label: 'AGENDA',
     items: [
       { href: '/app/agenda', label: 'Meus agendamentos', icon: CalendarDays },
+      { href: '/app/finalizar', label: 'Finalizar atendimentos', icon: CheckCheck },
       { href: '/app/lembretes', label: 'Lembretes', icon: Clock3 },
       { href: '/app/bloqueios', label: 'Bloqueios de horário', icon: Ban },
+    ],
+  },
+  {
+    label: 'FINANCEIRO',
+    items: [
+      { href: '/app/financeiro', label: 'Visão geral', icon: Wallet },
+      { href: '/app/financeiro/atendimentos', label: 'Atendimentos', icon: Coins },
     ],
   },
 ];
