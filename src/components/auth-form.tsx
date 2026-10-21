@@ -25,7 +25,7 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' | 'demo'
         setSuccess(result.detail);
       } else {
         await api(`auth/${mode}/`, { method: 'POST', body: JSON.stringify(data) });
-        router.push('/app');
+        router.replace('/app');
         router.refresh();
       }
     } catch (err) {

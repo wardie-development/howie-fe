@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import PortalShell from '@/components/portal-shell';
+import { getSessionProfile } from '@/lib/session';
 import type { Profile } from '@/lib/types';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -10,16 +10,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/app' },
 };
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
-  const token = (await cookies()).get('better_session')?.value;
-  if (!token) redirect('/login');
-  const backend = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
-  let response: Response;
+  let profile: Profile | null;
   try {
-    response = await fetch(`${backend.replace(/\/$/, '')}/api/v1/auth/me/`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-      signal: AbortSignal.timeout(15000),
-    });
+    profile = await getSessionProfile();
   } catch {
     return (
       <main className="not-found">
@@ -31,8 +24,6 @@ export default async function PortalLayout({ children }: { children: React.React
       </main>
     );
   }
-  if (response.status === 401 || response.status === 403) redirect('/login');
-  if (!response.ok) throw new Error('Não foi possível carregar sua conta.');
-  const profile: Profile = await response.json();
+  if (!profile) redirect('/login');
   return <PortalShell profile={profile}>{children}</PortalShell>;
 }

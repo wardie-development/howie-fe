@@ -77,6 +77,15 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
   const me = await request('/api/auth/me', { cookie });
   assert.equal(me.response.status, 200);
   assert.equal(me.data.company.name, `Teste local ${stamp}`);
+  for (const path of ['/login', '/cadastro']) {
+    const guest = await request(path);
+    assert.equal(guest.response.status, 200, path);
+    const authenticated = await request(path, { cookie });
+    assert.equal(authenticated.response.status, 307, path);
+    assert.equal(authenticated.response.headers.get('location'), '/app');
+    const invalid = await request(path, { cookie: 'better_session=invalid-session' });
+    assert.equal(invalid.response.status, 200, path);
+  }
   const service = await request('/api/services', {
     method: 'POST',
     cookie,
@@ -188,5 +197,9 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     204,
   );
   assert.equal((await request('/api/auth/me', { cookie })).response.status, 401);
+  for (const path of ['/login', '/cadastro']) {
+    const revoked = await request(path, { cookie });
+    assert.equal(revoked.response.status, 200, path);
+  }
   await request('/api/auth/logout', { method: 'POST', cookie: otherCookie, body: {} });
 });
