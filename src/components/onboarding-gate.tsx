@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Check,
   Clock3,
@@ -25,6 +26,7 @@ export default function OnboardingGate({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [state, setState] = useState<Onboarding>(
     profile.onboarding || {
       stage: 'pending',
@@ -236,7 +238,12 @@ export default function OnboardingGate({
       setBusy(false);
     }
   }
-  if (state.stage === 'ready') return children;
+  if (
+    state.stage === 'ready' ||
+    pathname === '/app/suporte' ||
+    pathname.startsWith('/app/suporte/')
+  )
+    return children;
   const waiting = state.stage === 'pending';
   const suspended = state.stage === 'suspended';
   return (
@@ -391,7 +398,7 @@ export default function OnboardingGate({
           )}
         </section>
         <p className="onboarding-support">
-          Precisa de uma mão? <a href="/demonstracao">Fale com a equipe Better</a>
+          Precisa de uma mão? <Link href="/app/suporte">Fale com a equipe Better</Link>
         </p>
       </div>
     </main>

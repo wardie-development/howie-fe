@@ -375,3 +375,76 @@ test('Approval reveals only WhatsApp onboarding, including direct private URLs',
   assert.equal((await request('/api/auth/me', { cookie })).data.onboarding.stage, 'whatsapp');
   await request('/api/auth/logout', { method: 'POST', cookie, body: {} });
 });
+
+test('Support works before approval, tracks replies and status, and isolates ticket history', async () => {
+  const stamp = Date.now();
+  const signup = await request('/api/auth/register', {
+    method: 'POST',
+    body: {
+      name: 'Cliente do suporte',
+      company_name: 'Suporte local',
+      email: `support-${stamp}@example.test`,
+      password: 'Demonstracao!872635',
+    },
+  });
+  assert.equal(signup.response.status, 201, JSON.stringify(signup.data));
+  const cookie = signup.response.headers.get('set-cookie').split(';')[0];
+  assert.equal(signup.data.onboarding.stage, 'pending');
+  const panel = await request('/app/suporte', { cookie });
+  assert.equal(panel.response.status, 200);
+  assert.match(await panel.response.text(), /Fale com a gente/);
+  const ticket = await request('/api/support-tickets', {
+    method: 'POST',
+    cookie,
+    body: {
+      subject: 'Preciso conectar meu WhatsApp',
+      category: 'whatsapp',
+      message: 'Como posso continuar?',
+    },
+  });
+  assert.equal(ticket.response.status, 201, JSON.stringify(ticket.data));
+  assert.match(ticket.data.code, /^BT-[A-F0-9]{12}$/);
+  assert.equal(ticket.data.events.length, 1);
+  const path = `/api/support-tickets/${ticket.data.code}`;
+  const detailPage = await request(`/app/suporte/${ticket.data.code}`, { cookie });
+  assert.equal(detailPage.response.status, 200);
+  // Simulate the support staff response in the isolated preview database.
+  execFileSync(
+    backendDir + 'venv/bin/python',
+    [
+      'manage.py',
+      'shell',
+      '--settings=core.portal_dev_settings',
+      '-c',
+      `from django.contrib.auth import get_user_model; from apps.portal.models import SupportTicket; from apps.portal.support import update_ticket; ticket=SupportTicket.objects.get(code=${JSON.stringify(ticket.data.code)}); update_ticket(ticket,get_user_model().objects.get(username='demo@wardie.local'),message='Vamos ajudar com sua conexão.',status='waiting_customer',support=True)`,
+    ],
+    { cwd: backendDir, stdio: 'pipe' },
+  );
+  const updated = await request(path, { cookie });
+  assert.equal(updated.data.status, 'waiting_customer');
+  assert.equal(updated.data.events[1].message, 'Vamos ajudar com sua conexão.');
+  assert.equal(updated.data.events[1].actor_name, 'Equipe Better');
+  assert.ok(!('notification_payload' in updated.data.events[1]));
+  const reply = await request(path + '/reply', {
+    method: 'POST',
+    cookie,
+    body: { message: 'Obrigado, enviei os detalhes.' },
+  });
+  assert.equal(reply.data.status, 'open');
+  const close = await request(path + '/close', { method: 'POST', cookie, body: {} });
+  assert.equal(close.data.status, 'closed');
+  const reopen = await request(path + '/reopen', { method: 'POST', cookie, body: {} });
+  assert.equal(reopen.data.status, 'open');
+  const another = await request('/api/auth/login', {
+    method: 'POST',
+    body: { email: 'demo@wardie.local', password: 'Demonstracao2026!' },
+  });
+  const otherCookie = another.response.headers.get('set-cookie').split(';')[0];
+  assert.equal((await request(path, { cookie: otherCookie })).response.status, 404);
+  assert.equal((await request('/api/dashboard', { cookie })).response.status, 403);
+  const publicPage = await request('/fale-conosco');
+  assert.equal(publicPage.response.status, 200);
+  assert.match(await publicPage.response.text(), /Entrar e falar com a equipe/);
+  const contact = await request('/fale-conosco', { cookie });
+  assert.equal(contact.response.headers.get('location'), '/app/suporte');
+});

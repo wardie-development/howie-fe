@@ -49,6 +49,7 @@ export function PublicFooter() {
         <p>Mais tempo para o que só você pode fazer.</p>
       </div>
       <div>
+        <Link href="/fale-conosco">Fale conosco</Link>
         <Link href="/privacidade">Privacidade</Link>
         <Link href="/termos">Termos de uso</Link>
         <span>© {new Date().getFullYear()} Better</span>

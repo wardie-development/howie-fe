@@ -24,6 +24,7 @@ import {
   Wallet,
   Coins,
   CheckCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import { Brand } from '@/components/brand';
 import { api } from '@/lib/api';
@@ -34,6 +35,10 @@ export function useProfile() {
   if (!context) throw new Error('Perfil indisponível');
   return context;
 }
+const supportGroup = {
+  label: 'SUPORTE',
+  items: [{ href: '/app/suporte', label: 'Fale conosco', icon: CircleHelp }],
+};
 const groups = [
   {
     label: 'IA',
@@ -70,6 +75,7 @@ const groups = [
       { href: '/app/financeiro/atendimentos', label: 'Atendimentos', icon: Coins },
     ],
   },
+  supportGroup,
 ];
 export default function PortalShell({
   profile,
@@ -121,8 +127,22 @@ export default function PortalShell({
       previous?.focus();
     };
   }, [mobile, open]);
+  const restricted = profile.onboarding.stage !== 'ready';
+  const navigationGroups = restricted
+    ? [
+        {
+          label: 'SUA CONTA',
+          items: [{ href: '/app', label: 'Ativação da conta', icon: ShieldCheck }],
+        },
+        supportGroup,
+      ]
+    : groups;
   const title =
-    groups.flatMap((g) => g.items).find((item) => item.href === path)?.label || 'Configurações';
+    navigationGroups
+      .flatMap((g) => g.items)
+      .find((item) =>
+        item.href === '/app/suporte' ? path.startsWith(item.href) : item.href === path,
+      )?.label || 'Configurações';
   async function logout() {
     setLoggingOut(true);
     try {
@@ -172,7 +192,7 @@ export default function PortalShell({
             </div>
           </div>
           <nav aria-label="Gestão da empresa">
-            {groups.map((group) => (
+            {navigationGroups.map((group) => (
               <div className="nav-group" key={group.label}>
                 <span className="nav-label">{group.label}</span>
                 {group.items.map(({ href, label, icon: Icon }) => (
@@ -180,12 +200,19 @@ export default function PortalShell({
                     href={href}
                     onClick={() => setOpen(false)}
                     key={href}
-                    aria-current={path === href ? 'page' : undefined}
-                    className={`sidebar-link ${path === href ? 'active' : ''}`}
+                    aria-current={
+                      path === href || (href === '/app/suporte' && path.startsWith(href + '/'))
+                        ? 'page'
+                        : undefined
+                    }
+                    className={`sidebar-link ${path === href || (href === '/app/suporte' && path.startsWith(href + '/')) ? 'active' : ''}`}
                   >
                     <Icon size={18} />
                     <span>{label}</span>
-                    {path === href && <span className="active-dot" />}
+                    {(path === href ||
+                      (href === '/app/suporte' && path.startsWith(href + '/'))) && (
+                      <span className="active-dot" />
+                    )}
                   </Link>
                 ))}
               </div>
@@ -196,20 +223,22 @@ export default function PortalShell({
               <span className="icon-box yellow-bg">
                 <Sparkles size={18} />
               </span>
-              <strong>Vamos dar o primeiro oi?</strong>
-              <p>Conheça o fluxo com uma demonstração gratuita.</p>
-              <Link href="/demonstracao">
-                Solicitar demonstração <ArrowUpRight size={15} />
+              <strong>Conte com a gente.</strong>
+              <p>Abra um chamado e acompanhe a solução por aqui.</p>
+              <Link href="/app/suporte">
+                Falar com a equipe <ArrowUpRight size={15} />
               </Link>
             </div>
-            <Link
-              href="/app/configuracoes"
-              className={`sidebar-link ${path === '/app/configuracoes' ? 'active' : ''}`}
-              onClick={() => setOpen(false)}
-            >
-              <Settings2 size={18} />
-              Configurações
-            </Link>
+            {!restricted && (
+              <Link
+                href="/app/configuracoes"
+                className={`sidebar-link ${path === '/app/configuracoes' ? 'active' : ''}`}
+                onClick={() => setOpen(false)}
+              >
+                <Settings2 size={18} />
+                Configurações
+              </Link>
+            )}
             <button className="sidebar-link logout-button" onClick={logout} disabled={loggingOut}>
               <LogOut size={18} />
               {loggingOut ? 'Saindo...' : 'Sair da conta'}
@@ -238,7 +267,7 @@ export default function PortalShell({
               </span>
             </div>
             <div className="topbar-right">
-              <Link href="/demonstracao" className="topbar-help">
+              <Link href="/app/suporte" className="topbar-help">
                 <CircleHelp size={17} />
                 <span>Preciso de ajuda</span>
               </Link>

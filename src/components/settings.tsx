@@ -79,11 +79,11 @@ export default function Settings() {
             </span>
             <h2>Integração com WhatsApp</h2>
             <p>
-              A conexão do número precisa ser configurada antes de ativar o atendimento. Solicite
-              ajuda na sua demonstração.
+              Precisa de ajuda com a conexão do seu número? Abra um chamado para conversar com a
+              equipe Better e acompanhar a solução.
             </p>
-            <Link className="text-link" href="/demonstracao">
-              Combinar minha demonstração
+            <Link className="text-link" href="/app/suporte">
+              Pedir ajuda com o WhatsApp
             </Link>
           </section>
         </div>

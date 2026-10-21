@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Eye, EyeOff, LoaderCircle, Check } from 'lucide-react';
 import { api } from '@/lib/api';
 
-export default function AuthForm({ mode }: { mode: 'login' | 'register' | 'demo' }) {
+export default function AuthForm({
+  mode,
+  returnTo = '/app',
+}: {
+  mode: 'login' | 'register' | 'demo';
+  returnTo?: '/app' | '/app/suporte';
+}) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [success, setSuccess] = useState(''),
@@ -25,7 +31,7 @@ export default function AuthForm({ mode }: { mode: 'login' | 'register' | 'demo'
         setSuccess(result.detail);
       } else {
         await api(`auth/${mode}/`, { method: 'POST', body: JSON.stringify(data) });
-        router.replace('/app');
+        router.replace(returnTo);
         router.refresh();
       }
     } catch (err) {
