@@ -19,6 +19,10 @@ export function useLoad<T>(loader: () => Promise<T>, deps: unknown[] = []) {
       })
       .catch((err) => {
         if (!cancelled) {
+          if (err instanceof ApiError && err.status === 403) {
+            window.location.assign('/app');
+            return;
+          }
           if (err instanceof ApiError && err.status === 401) {
             window.location.assign('/login');
             return;

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import OnboardingGate from '@/components/onboarding-gate';
 import PortalShell from '@/components/portal-shell';
 import { getSessionProfile } from '@/lib/session';
 import type { Profile } from '@/lib/types';
@@ -25,5 +26,9 @@ export default async function PortalLayout({ children }: { children: React.React
     );
   }
   if (!profile) redirect('/login');
-  return <PortalShell profile={profile}>{children}</PortalShell>;
+  return (
+    <OnboardingGate profile={profile}>
+      <PortalShell profile={profile}>{children}</PortalShell>
+    </OnboardingGate>
+  );
 }

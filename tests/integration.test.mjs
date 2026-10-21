@@ -1,5 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const backendDir = fileURLToPath(new URL('../../howie/', import.meta.url));
+function legacyTestAccount(email) {
+  execFileSync(
+    backendDir + 'venv/bin/python',
+    [
+      'manage.py',
+      'shell',
+      '--settings=core.portal_dev_settings',
+      '-c',
+      `from apps.company.models import Company; Company.objects.filter(memberships__user__email=${JSON.stringify(email)}).update(portal_access='approved',legacy_portal_access=True)`,
+    ],
+    { cwd: backendDir, stdio: 'pipe' },
+  );
+}
 
 const base = process.env.BASE_URL || 'http://localhost:3000';
 if (!['localhost', '127.0.0.1'].includes(new URL(base).hostname))
@@ -86,6 +102,11 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     const invalid = await request(path, { cookie: 'better_session=invalid-session' });
     assert.equal(invalid.response.status, 200, path);
   }
+  assert.equal(first.data.onboarding.stage, 'pending');
+  assert.equal((await request('/api/services', { cookie })).response.status, 403);
+  const pendingPage = await fetch(base + '/app/agenda', { headers: { cookie } });
+  assert.match(await pendingPage.text(), /Cadastro recebido/);
+  legacyTestAccount(`local-${stamp}@example.test`);
   const service = await request('/api/services', {
     method: 'POST',
     cookie,
@@ -247,6 +268,7 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
   });
   assert.equal(other.response.status, 201);
   const otherCookie = other.response.headers.get('set-cookie').split(';')[0];
+  legacyTestAccount(`other-${stamp}@example.test`);
   assert.equal(
     (await request(`/api/appointments/${booking.data.id}`, { cookie: otherCookie })).response
       .status,
@@ -317,4 +339,39 @@ test('End-to-end signup, HttpOnly session, tenant isolation, setup, booking and 
     assert.equal(revoked.response.status, 200, path);
   }
   await request('/api/auth/logout', { method: 'POST', cookie: otherCookie, body: {} });
+});
+
+test('Approval reveals only WhatsApp onboarding, including direct private URLs', async () => {
+  const email = `pending-${Date.now()}@example.test`;
+  const signed = await request('/api/auth/register', {
+    method: 'POST',
+    body: {
+      name: 'Nova Conta',
+      company_name: 'Studio Novo',
+      email,
+      password: 'Demonstracao!228899',
+    },
+  });
+  assert.equal(signed.response.status, 201);
+  const cookie = signed.response.headers.get('set-cookie').split(';')[0];
+  execFileSync(
+    backendDir + 'venv/bin/python',
+    [
+      'manage.py',
+      'shell',
+      '--settings=core.portal_dev_settings',
+      '-c',
+      `from apps.company.models import Company; Company.objects.filter(memberships__user__email=${JSON.stringify(email)}).update(portal_access='approved')`,
+    ],
+    { cwd: backendDir, stdio: 'pipe' },
+  );
+  assert.equal((await request('/api/onboarding', { cookie })).data.stage, 'whatsapp');
+  for (const path of ['/app', '/app/agentes', '/app/financeiro', '/app/agenda']) {
+    const html = await (await fetch(base + path, { headers: { cookie } })).text();
+    assert.match(html, /Vamos conectar seu WhatsApp/);
+    assert.doesNotMatch(html, /workspace-navigation/);
+  }
+  assert.equal((await request('/api/agents', { cookie })).response.status, 403);
+  assert.equal((await request('/api/auth/me', { cookie })).data.onboarding.stage, 'whatsapp');
+  await request('/api/auth/logout', { method: 'POST', cookie, body: {} });
 });

@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 const COOKIE = 'better_session';
 async function handle(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   const { path } = await context.params;
@@ -30,7 +31,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
         headers,
         body: ['GET', 'HEAD'].includes(request.method) ? undefined : await request.text(),
         cache: 'no-store',
-        signal: AbortSignal.timeout(25000),
+        signal: AbortSignal.timeout(route === 'onboarding/whatsapp/complete' ? 55000 : 25000),
         redirect: 'manual',
       },
     );

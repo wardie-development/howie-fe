@@ -69,3 +69,7 @@ O backend guarda pedidos de demonstração no Admin, sem disparo de e-mail autom
 ## Atendimentos e Financeiro
 
 `/app/finalizar` mostra horários encerrados para baixa individual ou em lote. `/app/financeiro` apresenta totais e detalhamento por serviço/profissional. `/app/financeiro/atendimentos` lista os mesmos agendamentos, com filtros de resultado, pagamento e período. O detalhe do evento na agenda também abre os registros financeiros. Há descontos justificados, pagamentos antecipados/parciais, devoluções e correção auditada da finalização. Os registros são manuais; recebimentos e devoluções não executam transações bancárias. Backend financeiro publicado em 21/10/2026; publicar este frontend na Vercel para disponibilizar as novas telas.
+
+## Ativação de novas contas
+
+O layout do painel mostra apenas o onboarding enquanto a conta aguarda aprovação ou conexão do WhatsApp. As etapas são informadas pelo backend; a conexão usa o SDK oficial da Meta, Embedded Signup v4 e Coexistence. O token permanece no backend. A proteção de acesso também é aplicada nas APIs. Ver `../howie/README.onboarding.md` para ambiente, publicação e pendências da Meta.

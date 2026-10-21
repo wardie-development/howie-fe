@@ -1,4 +1,11 @@
+export type Onboarding = {
+  stage: 'pending' | 'suspended' | 'whatsapp' | 'ready';
+  can_use_panel: boolean;
+  whatsapp_connected: boolean;
+  phone_number: string | null;
+};
 export type Profile = {
+  onboarding: Onboarding;
   user: { id: number; name: string; email: string };
   company: { id: number; name: string; logo: string | null };
 };

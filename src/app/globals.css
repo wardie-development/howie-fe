@@ -4317,52 +4317,426 @@ fieldset {
 }
 
 /* Appointment reminders */
-.reminder-settings { padding: 24px; display: grid; gap: 18px; margin-bottom: 24px; }
-.reminder-settings h2 { margin-bottom: 8px; }
-.reminder-settings p, .reminder-card p { line-height: 1.65; overflow-wrap: anywhere; }
-.reminder-settings > label:not(.checkbox-label) { display: grid; gap: 8px; max-width: 520px; }
-.reminder-list { display: grid; gap: 16px; padding: 0 24px 24px; }
-.reminder-card { padding: 18px; border: 1px solid var(--border, #e2e6e3); border-radius: 14px; display: grid; gap: 12px; min-width: 0; }
-.reminder-card-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.reminder-card-title > div { display: grid; gap: 6px; }
-.reminder-card-title h3 { display: flex; gap: 8px; align-items: center; }
-.reminder-card small { color: var(--muted, #66716b); line-height: 1.5; }
-.reminder-toolbar, .reminder-variables { display: flex; gap: 8px; flex-wrap: wrap; }
-.reminder-preview { border-radius: 14px; padding: 18px; background: #edf4ef; white-space: pre-wrap; }
-.reminder-preview p { margin-top: 10px; line-height: 1.6; overflow-wrap: anywhere; }
-.reminder-preview small { letter-spacing: .08em; font-size: 10px; }
-.reminder-actions { border: 1px solid #dfe6e1; border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
-.reminder-actions legend { padding: 0 8px; font-weight: 600; }
-.appointment-reminders { display: grid; gap: 16px; padding-top: 20px; border-top: 1px solid #e2e6e3; }
-@media (max-width: 600px) { .reminder-list { padding: 0 14px 14px; } .reminder-settings { padding: 18px; } .reminder-toolbar .button { flex: 1 1 140px; } }
+.reminder-settings {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.reminder-settings h2 {
+  margin-bottom: 8px;
+}
+.reminder-settings p,
+.reminder-card p {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.reminder-settings > label:not(.checkbox-label) {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+}
+.reminder-list {
+  display: grid;
+  gap: 16px;
+  padding: 0 24px 24px;
+}
+.reminder-card {
+  padding: 18px;
+  border: 1px solid var(--border, #e2e6e3);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.reminder-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.reminder-card-title > div {
+  display: grid;
+  gap: 6px;
+}
+.reminder-card-title h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.reminder-card small {
+  color: var(--muted, #66716b);
+  line-height: 1.5;
+}
+.reminder-toolbar,
+.reminder-variables {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.reminder-preview {
+  border-radius: 14px;
+  padding: 18px;
+  background: #edf4ef;
+  white-space: pre-wrap;
+}
+.reminder-preview p {
+  margin-top: 10px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.reminder-preview small {
+  letter-spacing: 0.08em;
+  font-size: 10px;
+}
+.reminder-actions {
+  border: 1px solid #dfe6e1;
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.reminder-actions legend {
+  padding: 0 8px;
+  font-weight: 600;
+}
+.appointment-reminders {
+  display: grid;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e6e3;
+}
+@media (max-width: 600px) {
+  .reminder-list {
+    padding: 0 14px 14px;
+  }
+  .reminder-settings {
+    padding: 18px;
+  }
+  .reminder-toolbar .button {
+    flex: 1 1 140px;
+  }
+}
 
 /* Attendance completion and operational finance */
-.finance-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; padding: 20px; margin-bottom: 24px; }
-.finance-filters label { display: grid; gap: 7px; flex: 1 1 145px; font-size: 12px; font-weight: 600; }
-.finance-filters input, .finance-filters select { min-width: 0; width: 100%; }
-.finance-stat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.finance-stat-grid .stat-card > strong { font-size: clamp(22px, 2.1vw, 34px); overflow-wrap: anywhere; }
-.finance-breakdowns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
-.finance-list-tools { display: flex; justify-content: space-between; align-items: end; gap: 16px; padding: 0 24px 20px; flex-wrap: wrap; }
-.finance-search { display: grid; gap: 7px; font-size: 12px; width: min(100%, 350px); }
-.finance-detail { padding: 24px; display: grid; gap: 24px; }
-.finance-detail-badges, .finance-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.finance-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.finance-detail-grid > div { padding: 16px; background: #f4f6f2; border-radius: 12px; display: grid; gap: 7px; }
-.finance-detail-grid small { color: #637067; }
-.finance-detail-grid strong { font-size: 21px; overflow-wrap: anywhere; }
-.finance-total-line { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #eef3eb; border-radius: 12px; }
-.finance-total-line strong { font-size: 24px; }
-.finance-payment-list { display: grid; margin-top: 14px; }
-.finance-payment-list > div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e1e6e0; }
-.finance-payment-list small, .finance-audit small { display: block; margin-top: 5px; color: #657167; font-size: 11px; line-height: 1.6; }
-.finance-negative { color: #9e4d46; }
-.finance-audit { border-top: 1px solid #e1e6e0; padding-top: 16px; }
-.finance-audit > div { padding: 12px 0; }
-.finance-audit p { margin-top: 6px; font-size: 12px; }
-.appointment-finance { border-top: 1px solid #e1e6e0; padding-top: 20px; display: grid; gap: 12px; }
-.appointment-finance h3 { display: flex; gap: 8px; align-items: center; }
-.appointment-finance p { color: #657167; font-size: 12px; line-height: 1.7; margin-top: 7px; }
-.appointment-finance > button { justify-self: start; }
-@media (max-width: 1000px) { .finance-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .finance-breakdowns { grid-template-columns: 1fr; } }
-@media (max-width: 500px) { .finance-stat-grid { grid-template-columns: 1fr; } .finance-detail { padding: 18px; } .finance-detail-grid strong { font-size: 18px; } .finance-list-tools { padding: 0 16px 16px; } }
+.finance-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.finance-filters label {
+  display: grid;
+  gap: 7px;
+  flex: 1 1 145px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.finance-filters input,
+.finance-filters select {
+  min-width: 0;
+  width: 100%;
+}
+.finance-stat-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.finance-stat-grid .stat-card > strong {
+  font-size: clamp(22px, 2.1vw, 34px);
+  overflow-wrap: anywhere;
+}
+.finance-breakdowns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+.finance-list-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  padding: 0 24px 20px;
+  flex-wrap: wrap;
+}
+.finance-search {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  width: min(100%, 350px);
+}
+.finance-detail {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+}
+.finance-detail-badges,
+.finance-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.finance-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.finance-detail-grid > div {
+  padding: 16px;
+  background: #f4f6f2;
+  border-radius: 12px;
+  display: grid;
+  gap: 7px;
+}
+.finance-detail-grid small {
+  color: #637067;
+}
+.finance-detail-grid strong {
+  font-size: 21px;
+  overflow-wrap: anywhere;
+}
+.finance-total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #eef3eb;
+  border-radius: 12px;
+}
+.finance-total-line strong {
+  font-size: 24px;
+}
+.finance-payment-list {
+  display: grid;
+  margin-top: 14px;
+}
+.finance-payment-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e1e6e0;
+}
+.finance-payment-list small,
+.finance-audit small {
+  display: block;
+  margin-top: 5px;
+  color: #657167;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.finance-negative {
+  color: #9e4d46;
+}
+.finance-audit {
+  border-top: 1px solid #e1e6e0;
+  padding-top: 16px;
+}
+.finance-audit > div {
+  padding: 12px 0;
+}
+.finance-audit p {
+  margin-top: 6px;
+  font-size: 12px;
+}
+.appointment-finance {
+  border-top: 1px solid #e1e6e0;
+  padding-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+.appointment-finance h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.appointment-finance p {
+  color: #657167;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-top: 7px;
+}
+.appointment-finance > button {
+  justify-self: start;
+}
+@media (max-width: 1000px) {
+  .finance-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .finance-breakdowns {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 500px) {
+  .finance-stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .finance-detail {
+    padding: 18px;
+  }
+  .finance-detail-grid strong {
+    font-size: 18px;
+  }
+  .finance-list-tools {
+    padding: 0 16px 16px;
+  }
+}
+
+/* Focused activation flow: the workspace navigation appears only after onboarding. */
+.onboarding-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse at 10% 18%, #f8eec4 0, transparent 45%),
+    radial-gradient(ellipse at 92% 85%, #dcecf9 0, transparent 45%), #f7f9fc;
+  padding: 28px 6vw;
+  color: var(--ink, #152637);
+}
+.onboarding-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: auto;
+}
+.onboarding-wrap {
+  max-width: 680px;
+  margin: 70px auto 35px;
+  text-align: center;
+}
+.onboarding-wrap h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.13;
+  letter-spacing: -1.9px;
+  margin: 15px 0;
+}
+.onboarding-wrap h1 span {
+  color: #2779ad;
+}
+.onboarding-intro {
+  color: #657485;
+  margin: 20px 0 32px;
+  line-height: 1.6;
+}
+.onboarding-steps {
+  display: flex;
+  list-style: none;
+  margin: 0 auto 28px;
+  padding: 0;
+  justify-content: center;
+  gap: 32px;
+  color: #94a0ad;
+  font-size: 13px;
+  font-weight: 600;
+}
+.onboarding-steps li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.onboarding-steps li > span {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  border: 1px solid #d6dfe7;
+  border-radius: 50%;
+  background: #fff;
+}
+.onboarding-steps .current {
+  color: #1f678f;
+}
+.onboarding-steps .current > span {
+  background: #e5f0f8;
+  border-color: #aed2eb;
+}
+.onboarding-steps .done {
+  color: #438169;
+}
+.onboarding-steps .done > span {
+  background: #e5f4ec;
+  border-color: #b9dcc9;
+}
+.onboarding-card {
+  text-align: left;
+  padding: 36px;
+  border: 1px solid #e0e7ed;
+  background: #ffffffeb;
+  border-radius: 24px;
+  box-shadow: 0 18px 60px #233e5c0a;
+}
+.onboarding-symbol {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: #fff5d6;
+  color: #94751e;
+  margin-bottom: 22px;
+}
+.onboarding-card h2 {
+  font-size: 24px;
+  letter-spacing: -0.7px;
+  line-height: 1.3;
+  margin: 0 0 14px;
+}
+.onboarding-card > p {
+  font-size: 15px;
+  color: #667686;
+  line-height: 1.8;
+  margin: 0 0 26px;
+}
+.onboarding-card .button {
+  margin-top: 14px;
+}
+.onboarding-card > small {
+  display: block;
+  color: #7a8796;
+  margin-top: 18px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.onboarding-note {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 13px;
+  background: #edf5fa;
+  color: #476478;
+  font-size: 13px;
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+.onboarding-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.onboarding-support {
+  font-size: 13px;
+  color: #748392;
+  margin: 25px 0;
+}
+.onboarding-support a {
+  color: #246a97;
+  text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .onboarding-page {
+    padding: 22px;
+  }
+  .onboarding-wrap {
+    margin-top: 44px;
+  }
+  .onboarding-card {
+    padding: 25px;
+  }
+  .onboarding-steps {
+    gap: 16px;
+    font-size: 11px;
+  }
+  .onboarding-steps li {
+    gap: 5px;
+  }
+}
