@@ -13,51 +13,10 @@ import {
 } from 'lucide-react';
 import { Brand } from './brand';
 import { api, ApiError } from '@/lib/api';
+import { facebookSDK, launchWhatsAppSignup } from '@/lib/facebook-sdk';
 import type { Profile, Onboarding } from '@/lib/types';
 
 type Launch = { attempt: string; app_id: string; config_id: string; graph_version: string };
-type Facebook = {
-  init: (options: Record<string, unknown>) => void;
-  login: (
-    callback: (response: { authResponse?: { code?: string } }) => void,
-    options: Record<string, unknown>,
-  ) => void;
-};
-declare global {
-  interface Window {
-    FB?: Facebook;
-  }
-}
-let sdkPromise: Promise<Facebook> | undefined;
-function facebookSDK(): Promise<Facebook> {
-  if (window.FB) return Promise.resolve(window.FB);
-  if (!sdkPromise)
-    sdkPromise = new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://connect.facebook.net/pt_BR/sdk.js';
-      script.async = true;
-      const fail = () => {
-        clearTimeout(timer);
-        sdkPromise = undefined;
-        script.remove();
-        reject(
-          new Error(
-            'Não foi possível carregar a conexão da Meta. Verifique sua conexão e tente novamente.',
-          ),
-        );
-      };
-      const timer = setTimeout(fail, 20000);
-      script.onload = () => {
-        clearTimeout(timer);
-        if (window.FB) resolve(window.FB);
-        else fail();
-      };
-      script.onerror = fail;
-      document.head.appendChild(script);
-    });
-  return sdkPromise;
-}
-
 export default function OnboardingGate({
   profile,
   children,
@@ -81,6 +40,7 @@ export default function OnboardingGate({
   const [processing, setProcessing] = useState(false);
   const [launch, setLaunch] = useState<Launch | null>(null);
   const [retry, setRetry] = useState(0);
+  const [sdkFailed, setSDKFailed] = useState(false);
   const flow = useRef<{
     launch: Launch;
     code?: string;
@@ -96,7 +56,6 @@ export default function OnboardingGate({
       const result = await api<Onboarding & { signup_available: boolean }>('onboarding/');
       setState(result);
       setAvailable(result.signup_available);
-      setError('');
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         window.location.assign('/login');
@@ -126,23 +85,20 @@ export default function OnboardingGate({
     if (state.stage !== 'whatsapp' || !available) return;
     let canceled = false;
     setLaunch(null);
+    setSDKFailed(false);
     Promise.all([
       facebookSDK(),
       api<Launch>('onboarding/whatsapp/begin/', { method: 'POST', body: '{}' }),
     ])
-      .then(([fb, prepared]) => {
+      .then(([, prepared]) => {
         if (canceled) return;
-        fb.init({
-          appId: prepared.app_id,
-          version: prepared.graph_version,
-          xfbml: false,
-          cookie: false,
-        });
         setLaunch(prepared);
       })
       .catch((err) => {
-        if (!canceled)
+        if (!canceled) {
+          setSDKFailed(true);
           setError(err instanceof Error ? err.message : 'Não foi possível preparar a conexão.');
+        }
       });
     const expiry = setTimeout(
       () => {
@@ -236,8 +192,8 @@ export default function OnboardingGate({
     setBusy(true);
     flow.current = { launch };
     // Keep FB.login synchronous with the click so browsers allow its popup.
-    window.FB.login(
-      (response) => {
+    try {
+      launchWhatsAppSignup(window.FB, launch, (response) => {
         if (!flow.current) return;
         if (response.authResponse?.code) {
           flow.current.code = response.authResponse.code;
@@ -247,18 +203,17 @@ export default function OnboardingGate({
           setBusy(false);
           setError('A autorização não foi concluída. Tente novamente.');
         }
-      },
-      {
-        config_id: launch.config_id,
-        response_type: 'code',
-        override_default_response_type: true,
-        extras: {
-          version: 'v4',
-          featureType: 'whatsapp_business_app_onboarding',
-          sessionInfoVersion: '3',
-        },
-      },
-    );
+      });
+    } catch {
+      flow.current = null;
+      setBusy(false);
+      setLaunch(null);
+      setSDKFailed(true);
+      setError(
+        'Não foi possível abrir a autorização da Meta. Recarregue a conexão e permita a janela de autorização no navegador.',
+      );
+      return;
+    }
     timeout.current = setTimeout(
       () => {
         if (flow.current && !flow.current.sending) {
@@ -375,6 +330,10 @@ export default function OnboardingGate({
                     launch
                       ? connect
                       : () => {
+                          if (sdkFailed) {
+                            window.location.reload();
+                            return;
+                          }
                           setError('');
                           setRetry((v) => v + 1);
                         }
@@ -393,7 +352,9 @@ export default function OnboardingGate({
                     : launch
                       ? 'Conectar meu WhatsApp'
                       : error
-                        ? 'Preparar nova tentativa'
+                        ? sdkFailed
+                          ? 'Recarregar conexão'
+                          : 'Preparar nova tentativa'
                         : 'Preparando conexão...'}
                   {launch && !busy && <ArrowRight size={18} />}
                 </button>
