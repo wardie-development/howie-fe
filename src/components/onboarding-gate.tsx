@@ -13,6 +13,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { Brand } from './brand';
+import { VerifyEmailGate } from './email-verification';
 import { api, ApiError } from '@/lib/api';
 import { facebookSDK, launchWhatsAppSignup } from '@/lib/facebook-sdk';
 import type { Profile, Onboarding } from '@/lib/types';
@@ -244,6 +245,8 @@ export default function OnboardingGate({
     pathname.startsWith('/app/suporte/')
   )
     return children;
+  if (state.stage === 'email' && profile.email_verification)
+    return <VerifyEmailGate initial={profile.email_verification} />;
   const waiting = state.stage === 'pending';
   const suspended = state.stage === 'suspended';
   return (

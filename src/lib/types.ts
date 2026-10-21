@@ -1,10 +1,19 @@
 export type Onboarding = {
-  stage: 'pending' | 'suspended' | 'whatsapp' | 'ready';
+  stage: 'email' | 'pending' | 'suspended' | 'whatsapp' | 'ready';
   can_use_panel: boolean;
   whatsapp_connected: boolean;
   phone_number: string | null;
 };
+export type EmailVerification = {
+  required: boolean;
+  verified: boolean;
+  email: string;
+  delivery_status: 'not_sent' | 'pending' | 'sent' | 'failed';
+  resend_available_at: string;
+  sends_remaining: number;
+};
 export type Profile = {
+  email_verification?: EmailVerification;
   onboarding: Onboarding;
   user: { id: number; name: string; email: string };
   company: { id: number; name: string; logo: string | null };

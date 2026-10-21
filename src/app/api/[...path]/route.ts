@@ -53,6 +53,8 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
             status: response.status,
             headers: { 'Cache-Control': 'no-store' },
           });
+    if (response.headers.has('Retry-After'))
+      result.headers.set('Retry-After', response.headers.get('Retry-After')!);
     if (session)
       result.cookies.set(COOKIE, session.token, {
         httpOnly: true,

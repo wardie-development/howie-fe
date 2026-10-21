@@ -30,7 +30,11 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       : await response
           .json()
           .catch(() => ({ detail: 'O serviço está temporariamente indisponível.' }));
-  if (!response.ok) throw new ApiError(errorMessage(body), response.status);
+  if (!response.ok)
+    throw new ApiError(
+      typeof body?.detail === 'string' ? body.detail : errorMessage(body),
+      response.status,
+    );
   return body as T;
 }
 export async function list<T>(path: string): Promise<T[]> {

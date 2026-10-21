@@ -448,3 +448,60 @@ test('Support works before approval, tracks replies and status, and isolates tic
   const contact = await request('/fale-conosco', { cookie });
   assert.equal(contact.response.headers.get('location'), '/app/suporte');
 });
+
+test('Email confirmation gates the panel, limits resends and confirms without exposing a session', async () => {
+  const { randomBytes, createHash } = await import('node:crypto');
+  const email = `verify-${Date.now()}@example.test`;
+  const registration = await request('/api/auth/register', {
+    method: 'POST',
+    body: {
+      name: 'Validação de e-mail',
+      company_name: 'Confirmação local',
+      email,
+      password: 'Demonstracao!872635',
+    },
+  });
+  assert.equal(registration.response.status, 201);
+  const cookie = registration.response.headers.get('set-cookie').split(';')[0];
+  const token = randomBytes(32).toString('base64url');
+  const digest = createHash('sha256').update(token).digest('hex');
+  execFileSync(
+    backendDir + 'venv/bin/python',
+    [
+      'manage.py',
+      'shell',
+      '--settings=core.portal_dev_settings',
+      '-c',
+      `from apps.portal.models import CompanyMembership,EmailVerificationChallenge; from django.utils import timezone; from datetime import timedelta; member=CompanyMembership.objects.get(user__email=${JSON.stringify(email)}); member.email_verification_required=True; member.verification_window_at=timezone.now(); member.verification_last_sent_at=timezone.now(); member.verification_send_count=1; member.save(); EmailVerificationChallenge.objects.create(membership=member,email=member.user.email,token_hash=${JSON.stringify(digest)},expires_at=timezone.now()+timedelta(hours=24),delivery_status='sent')`,
+    ],
+    { cwd: backendDir, stdio: 'pipe' },
+  );
+  const profile = await request('/api/auth/me', { cookie });
+  assert.equal(profile.data.onboarding.stage, 'email');
+  assert.equal(profile.data.email_verification.sends_remaining, 4);
+  const gate = await request('/app', { cookie });
+  assert.equal(gate.response.status, 200);
+  assert.match(await gate.response.text(), /Já confirmei meu e-mail/);
+  const resend = await request('/api/auth/email-verification', {
+    method: 'POST',
+    cookie,
+    body: {},
+  });
+  assert.equal(resend.response.status, 429);
+  assert.ok(resend.data.retry_after > 0);
+  const page = await request('/confirmar-email');
+  assert.equal(page.response.status, 200);
+  assert.match(await page.response.text(), /noindex/);
+  // The token is supplied in the fragment in real links; only explicit POST consumes it.
+  const confirmed = await request('/api/auth/email-confirm', { method: 'POST', body: { token } });
+  assert.equal(confirmed.response.status, 200);
+  assert.equal(confirmed.data.status, 'confirmed');
+  assert.equal(confirmed.response.headers.get('set-cookie'), null);
+  assert.ok(!('token' in confirmed.data));
+  const updated = await request('/api/auth/me', { cookie });
+  assert.equal(updated.data.email_verification.verified, true);
+  assert.equal(updated.data.onboarding.stage, 'pending');
+  assert.equal((await request('/api/dashboard', { cookie })).response.status, 403);
+  const again = await request('/api/auth/email-confirm', { method: 'POST', body: { token } });
+  assert.equal(again.data.status, 'already_confirmed');
+});

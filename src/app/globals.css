@@ -5228,3 +5228,217 @@ fieldset {
     max-width: 100%;
   }
 }
+
+/* Email confirmation */
+.email-verify-page {
+  background:
+    radial-gradient(ellipse at 15% 20%, #f3f5e9 0%, transparent 40%),
+    radial-gradient(ellipse at 90% 70%, #eaf4fa 0%, transparent 50%), #f8faf9;
+  min-height: 100vh;
+}
+.email-verify-wrap {
+  max-width: 620px;
+  text-align: center;
+  margin: 35px auto 65px;
+  padding: 0 24px;
+}
+.email-verify-illustration {
+  display: inline-flex;
+  position: relative;
+  margin-bottom: 30px;
+  padding: 13px;
+  border: 1px solid #dfe8e4;
+  background: #f2f5ed;
+  border-radius: 30px;
+  transform: rotate(-5deg);
+}
+.email-verify-illustration > span {
+  display: grid;
+  place-items: center;
+  width: 77px;
+  height: 77px;
+  background: linear-gradient(135deg, #f2df7e, #d9e5d8 60%, #add6eb);
+  color: #3d647c;
+  border-radius: 22px;
+}
+.email-verify-illustration > i {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  bottom: 2px;
+  right: -8px;
+  width: 33px;
+  height: 33px;
+  background: white;
+  border: 1px solid #e1e9e6;
+  box-shadow: 0 5px 12px #344b5010;
+  border-radius: 12px;
+  color: #5f897a;
+  transform: rotate(5deg);
+}
+.email-verify-wrap h1 {
+  font-size: 43px;
+  line-height: 1.16;
+  letter-spacing: -2px;
+  margin: 14px 0 20px;
+}
+.email-verify-wrap h1 > span {
+  color: #527b93;
+}
+.email-verify-wrap > .eyebrow {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #839179;
+}
+.email-verify-intro {
+  font-size: 14px;
+  line-height: 1.9;
+  color: #7a8a92;
+  max-width: 420px;
+  margin: 0 auto 28px;
+}
+.email-verify-card {
+  border: 1px solid #e2e9e8;
+  box-shadow: 0 14px 55px #48616d06;
+  background: #fff;
+  border-radius: 19px;
+  padding: 28px;
+  text-align: left;
+}
+.email-address {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-radius: 11px;
+  padding: 14px;
+  background: #f1f7fb;
+  color: #4f7992;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.email-address strong {
+  min-width: 0;
+}
+.email-verify-card ol {
+  list-style: none;
+  display: grid;
+  gap: 15px;
+  padding: 0;
+  margin: 26px 0;
+  color: #71848e;
+  font-size: 12px;
+}
+.email-verify-card li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.email-verify-card li > span {
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: bold;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 1px solid #e4e9e7;
+  border-radius: 50%;
+  background: #fafbf7;
+  color: #82917e;
+}
+.email-verify-tip {
+  display: flex;
+  gap: 9px;
+  color: #91a0a9;
+  font-size: 11px;
+  line-height: 1.9;
+  margin: 0 0 25px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #edf1f1;
+}
+.email-verify-tip svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.email-verify-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.email-verify-actions .button {
+  font-size: 11px;
+  padding: 13px 15px;
+  flex: 1;
+  white-space: nowrap;
+}
+.email-verify-limits {
+  display: block;
+  color: #9ba7ae;
+  font-size: 9px;
+  line-height: 1.8;
+  margin-top: 18px;
+}
+.email-verify-support {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #92a09e;
+  margin-top: 26px;
+  flex-wrap: wrap;
+}
+.email-verify-support a {
+  color: #5d7e8c;
+  text-decoration: underline;
+}
+.email-confirm-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.email-confirm-card > small {
+  font-size: 10px;
+  color: #8d9ba4;
+  line-height: 1.8;
+  max-width: 340px;
+}
+.email-confirm-card > p {
+  font-size: 13px;
+  color: #7c8f99;
+  line-height: 1.8;
+}
+.email-confirm-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5d8875 !important;
+}
+.email-verify-illustration.confirmed > span {
+  color: #5e8e74;
+  background: linear-gradient(135deg, #f1e7aa, #cfe5d9);
+}
+@media (max-width: 600px) {
+  .email-verify-wrap {
+    margin-top: 30px;
+    padding: 0 18px;
+  }
+  .email-verify-wrap h1 {
+    font-size: 34px;
+    letter-spacing: -1.3px;
+  }
+  .email-verify-card {
+    padding: 23px 20px;
+  }
+  .email-verify-actions {
+    flex-direction: column;
+  }
+  .email-address {
+    font-size: 12px;
+  }
+  .email-verify-intro {
+    font-size: 13px;
+  }
+}
