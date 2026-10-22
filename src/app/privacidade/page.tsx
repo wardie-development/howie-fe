@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PublicNav, PublicFooter } from '@/components/brand';
 export const metadata: Metadata = {
   title: 'Privacidade',
@@ -34,8 +35,9 @@ export default function Privacy() {
         <h2>Controle dos dados</h2>
         <p>
           Você pode consultar e editar os dados disponíveis no portal. Solicitações sobre acesso,
-          correção ou exclusão de outros dados podem ser feitas pelo mesmo canal de atendimento
-          usado para contratar ou solicitar sua demonstração.
+          correção ou exclusão de outros dados podem ser feitas pelo nosso{' '}
+          <Link href="/app/suporte">suporte</Link>. Para pedidos de exclusão, consulte as{' '}
+          <Link href="/exclusao-de-dados">instruções de exclusão de dados</Link>.
         </p>
         <h2>Antes da contratação</h2>
         <p>
