@@ -15,7 +15,7 @@ export type EmailVerification = {
 export type Profile = {
   email_verification?: EmailVerification;
   onboarding: Onboarding;
-  user: { id: number; name: string; email: string };
+  user: { id: number; name: string; email: string; is_master?: boolean };
   company: { id: number; name: string; logo: string | null };
 };
 export type Agent = {

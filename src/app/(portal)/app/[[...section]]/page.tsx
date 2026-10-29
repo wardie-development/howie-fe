@@ -9,6 +9,7 @@ import Reminders from '@/components/reminders';
 import Finance from '@/components/finance';
 import Resources from '@/components/resources';
 import Support from '@/components/support';
+import Team from '@/components/team';
 export default async function PortalPage({ params }: { params: Promise<{ section?: string[] }> }) {
   const { section } = await params;
   const name = section?.join('/') || '';
@@ -24,6 +25,7 @@ export default async function PortalPage({ params }: { params: Promise<{ section
   if (name === 'suporte') return <Support />;
   if (section?.length === 2 && section[0] === 'suporte' && /^BT-[A-F0-9]{12}$/.test(section[1]))
     return <Support code={section[1]} />;
+  if (name === 'equipe') return <Team />;
   if (name === 'configuracoes') return <Settings />;
   // Keep routing serializable: resource configuration belongs to the client module.
   if (

@@ -75,6 +75,7 @@ const groups = [
       { href: '/app/financeiro/atendimentos', label: 'Atendimentos', icon: Coins },
     ],
   },
+  { label: 'EMPRESA', items: [{ href: '/app/equipe', label: 'Equipe', icon: Users }] },
   supportGroup,
 ];
 export default function PortalShell({
@@ -136,7 +137,7 @@ export default function PortalShell({
         },
         supportGroup,
       ]
-    : groups;
+    : groups.filter((group) => group.label !== 'EMPRESA' || profile.user.is_master);
   const title =
     navigationGroups
       .flatMap((g) => g.items)
