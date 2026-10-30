@@ -564,7 +564,11 @@ export default function Resources({ section }: { section: string }) {
       {deleting && (
         <Modal
           title={`Excluir ${config.singular}?`}
-          description="Esta ação remove o cadastro selecionado. Confira os vínculos antes de continuar."
+          description={
+            section === 'servicos'
+              ? 'O serviço sairá do cadastro e não poderá ser usado em novos agendamentos. Os agendamentos existentes, seus valores e horários serão preservados.'
+              : 'Esta ação remove o cadastro selecionado. Confira os vínculos antes de continuar.'
+          }
           onClose={() => !busy && setDeleting(null)}
         >
           {formError && <Notice error message={formError} />}
