@@ -26,6 +26,7 @@ import {
   CheckCheck,
   ShieldCheck,
 } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications';
 import { Brand } from '@/components/brand';
 import { api } from '@/lib/api';
 import type { Profile } from '@/lib/types';
@@ -52,9 +53,7 @@ const groups = [
   {
     label: 'MEUS SERVIÇOS',
     items: [
-      { href: '/app/servicos', label: 'Serviços', icon: Scissors },
-      { href: '/app/profissionais', label: 'Profissionais', icon: Users },
-      { href: '/app/vinculos', label: 'Serviços por profissional', icon: ContactRound },
+      { href: '/app/profissionais', label: 'Profissionais e serviços', icon: Users },
       { href: '/app/expedientes', label: 'Expedientes', icon: Clock3 },
       { href: '/app/clientes', label: 'Clientes', icon: ContactRound },
     ],
@@ -139,11 +138,13 @@ export default function PortalShell({
       ]
     : groups.filter((group) => group.label !== 'EMPRESA' || profile.user.is_master);
   const title =
-    navigationGroups
-      .flatMap((g) => g.items)
-      .find((item) =>
-        item.href === '/app/suporte' ? path.startsWith(item.href) : item.href === path,
-      )?.label || 'Configurações';
+    path === '/app/notificacoes'
+      ? 'Notificações'
+      : navigationGroups
+          .flatMap((g) => g.items)
+          .find((item) =>
+            item.href === '/app/suporte' ? path.startsWith(item.href) : item.href === path,
+          )?.label || 'Configurações';
   async function logout() {
     setLoggingOut(true);
     try {
@@ -268,6 +269,7 @@ export default function PortalShell({
               </span>
             </div>
             <div className="topbar-right">
+              {!restricted && <NotificationBell />}
               <Link href="/app/suporte" className="topbar-help">
                 <CircleHelp size={17} />
                 <span>Preciso de ajuda</span>

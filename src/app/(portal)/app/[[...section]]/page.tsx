@@ -1,4 +1,7 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import Catalog from '@/components/catalog';
+import WorkHours from '@/components/work-hours';
+import Notifications from '@/components/notifications';
 import Dashboard from '@/components/dashboard';
 import Agents from '@/components/agents';
 import Agenda from '@/components/agenda';
@@ -14,6 +17,10 @@ export default async function PortalPage({ params }: { params: Promise<{ section
   const { section } = await params;
   const name = section?.join('/') || '';
   if (!name) return <Dashboard />;
+  if (name === 'servicos' || name === 'vinculos') redirect('/app/profissionais');
+  if (name === 'profissionais') return <Catalog />;
+  if (name === 'expedientes') return <WorkHours />;
+  if (name === 'notificacoes') return <Notifications />;
   if (name === 'agentes') return <Agents />;
   if (name === 'agenda') return <Agenda />;
   if (name === 'finalizar') return <Finance finalization />;
@@ -28,9 +35,6 @@ export default async function PortalPage({ params }: { params: Promise<{ section
   if (name === 'equipe') return <Team />;
   if (name === 'configuracoes') return <Settings />;
   // Keep routing serializable: resource configuration belongs to the client module.
-  if (
-    ['servicos', 'profissionais', 'clientes', 'vinculos', 'expedientes', 'bloqueios'].includes(name)
-  )
-    return <Resources key={name} section={name} />;
+  if (['clientes', 'bloqueios'].includes(name)) return <Resources key={name} section={name} />;
   notFound();
 }

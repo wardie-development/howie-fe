@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { AppointmentReminders } from './reminders';
 import { AppointmentFinance } from './finance';
 import { api, list, money, dateTime } from '@/lib/api';
@@ -64,6 +65,26 @@ export default function Agenda() {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
+  const query = useSearchParams();
+  const notificationAppointment = query.get('appointment');
+  useEffect(() => {
+    if (!notificationAppointment || !/^\d+$/.test(notificationAppointment)) return;
+    let cancelled = false;
+    api<Appointment>(`appointments/${notificationAppointment}/`)
+      .then((item) => {
+        if (!cancelled) {
+          setSelected(item);
+          calendar.current?.getApi().gotoDate(item.starts_at);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Não foi possível abrir o agendamento.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [notificationAppointment]);
   const [offering, setOffering] = useState(''),
     [start, setStart] = useState(''),
     [slots, setSlots] = useState<Slot[] | null>(null),

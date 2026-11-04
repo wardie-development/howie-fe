@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { MessageCircle, RotateCcw, ArrowLeft, Sparkles, LoaderCircle } from 'lucide-react';
 import { api, list, dateTime } from '@/lib/api';
 import type { Chat, Message } from '@/lib/types';
@@ -21,6 +22,23 @@ export default function Conversations() {
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(''),
     [error, setError] = useState('');
+  const query = useSearchParams();
+  const notificationChat = query.get('chat');
+  useEffect(() => {
+    if (!notificationChat || !/^\d+$/.test(notificationChat)) return;
+    let cancelled = false;
+    api<Chat>(`chats/${notificationChat}/`)
+      .then((item) => {
+        if (!cancelled) setSelected(item);
+      })
+      .catch((err) => {
+        if (!cancelled)
+          setError(err instanceof Error ? err.message : 'Não foi possível abrir a conversa.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [notificationChat]);
   const messages = useLoad(
     () => (selected ? list<Message>(`chats/${selected.id}/messages/`) : Promise.resolve([])),
     [selected?.id],
