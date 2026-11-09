@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { api, list } from '@/lib/api';
 import type { Agent } from '@/lib/types';
+import AgentInstructions from './agent-instructions';
 import { PageHeader, Loading, ErrorState, EmptyState, Modal, Notice, useLoad } from './ui';
 export default function Agents() {
   const state = useLoad(() => list<Agent>('agents/'));
@@ -91,7 +92,7 @@ export default function Agents() {
             horários são consultados nos cadastros do seu negócio.
           </p>
         </div>
-        <Link href="/app/servicos" className="text-link">
+        <Link href="/app/profissionais" className="text-link">
           Organizar serviços <ArrowUpRight size={17} />
         </Link>
       </div>
@@ -182,19 +183,7 @@ export default function Agents() {
                 defaultValue={editing !== true ? editing.name : ''}
               />
             </label>
-            <label>
-              Orientações de atendimento
-              <textarea
-                name="custom_prompt"
-                rows={8}
-                maxLength={20000}
-                placeholder="Ex.: Atenda com simpatia, use mensagens curtas e confirme o serviço e o profissional antes de reservar um horário."
-                defaultValue={editing !== true ? editing.custom_prompt || '' : ''}
-              />
-              <small className="field-hint">
-                Não coloque senhas ou credenciais nas orientações.
-              </small>
-            </label>
+            <AgentInstructions initial={editing === true ? '' : editing.custom_prompt || ''} />
             {error && <Notice error message={error} />}
             <div className="modal-footer">
               <button

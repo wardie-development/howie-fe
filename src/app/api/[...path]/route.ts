@@ -21,6 +21,12 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
   const token = jar.get(COOKIE)?.value;
   const route = path.join('/');
   const backend = process.env.BACKEND_URL || 'http://127.0.0.1:8000';
+  const timeout =
+    route === 'onboarding/whatsapp/complete'
+      ? 55000
+      : route === 'agents/prompt-suggestion' && request.method === 'POST'
+        ? 28000
+        : 25000;
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
   try {
@@ -31,7 +37,7 @@ async function handle(request: NextRequest, context: { params: Promise<{ path: s
         headers,
         body: ['GET', 'HEAD'].includes(request.method) ? undefined : await request.text(),
         cache: 'no-store',
-        signal: AbortSignal.timeout(route === 'onboarding/whatsapp/complete' ? 55000 : 25000),
+        signal: AbortSignal.timeout(timeout),
         redirect: 'manual',
       },
     );
