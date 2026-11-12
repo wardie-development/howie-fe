@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { api, list } from '@/lib/api';
 import type { Agent } from '@/lib/types';
 import AgentInstructions from './agent-instructions';
+import AgentTestChat from './agent-test-chat';
 import { PageHeader, Loading, ErrorState, EmptyState, Modal, Notice, useLoad } from './ui';
 export default function Agents() {
   const state = useLoad(() => list<Agent>('agents/'));
@@ -23,6 +24,7 @@ export default function Agents() {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [notice, setNotice] = useState('');
+  const [testing, setTesting] = useState<Agent | null>(null);
   async function toggle(agent: Agent) {
     setBusy(true);
     setError('');
@@ -136,6 +138,9 @@ export default function Agents() {
                 </span>
               </div>
               <div className="agent-card-actions">
+                <button className="button primary small" onClick={() => setTesting(agent)}>
+                  <MessageCircle size={15} /> Testar agente
+                </button>
                 <button
                   className="button secondary small"
                   onClick={() => {
@@ -166,6 +171,7 @@ export default function Agents() {
           integração será acompanhada na sua demonstração.
         </p>
       </div>
+      {testing && <AgentTestChat agent={testing} close={() => setTesting(null)} />}
       {editing && (
         <Modal
           title={editing === true ? 'Um novo agente, com seu jeito.' : 'Ajustar meu agente'}
