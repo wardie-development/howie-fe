@@ -6842,3 +6842,129 @@ fieldset {
     animation: none;
   }
 }
+
+.catalog-assignment {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.catalog-assignment:has(.catalog-assignment-roster) {
+  grid-template-columns: minmax(160px, .36fr) minmax(0, 1fr);
+}
+
+.catalog-assignment-roster,
+.catalog-assignment-panel {
+  min-width: 0;
+  border: 1px solid #e3e8e4;
+  border-radius: 13px;
+  padding: 14px;
+  background: #fff;
+}
+
+.catalog-assignment-roster {
+  background: #f3f5f0;
+}
+
+.catalog-assignment-roster > h3 {
+  margin-bottom: 9px;
+  font-size: 13px;
+}
+
+.catalog-assignment-people {
+  display: grid;
+  gap: 5px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.catalog-assignment-people > button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: #263b47;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.catalog-assignment-people > button:hover:not(:disabled) {
+  background: #fff;
+}
+
+.catalog-assignment-people > button[aria-pressed='true'] {
+  border-color: #e6db9c;
+  background: #fffbee;
+}
+
+.catalog-assignment-initial {
+  display: grid;
+  place-items: center;
+  flex: 0 0 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #e7ebe4;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.catalog-assignment-person {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.catalog-assignment-person > small {
+  color: #53666d;
+  font-size: 11px;
+}
+
+.catalog-assignment-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.catalog-assignment-header > h3 {
+  min-width: 0;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.catalog-assignment .catalog-service-options {
+  grid-template-columns: minmax(0, 1fr);
+  max-height: 246px;
+  overflow: auto;
+}
+
+.catalog-assignment .catalog-service-option {
+  min-height: 52px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 600px) {
+  .catalog-assignment:has(.catalog-assignment-roster) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .catalog-assignment-people {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(125px, max-content);
+  }
+
+  .catalog-assignment-people > button {
+    max-width: 180px;
+  }
+}

@@ -378,153 +378,173 @@ export default function CatalogEditor({
               </div>
             )}
 
-            {section === 'services' &&
-              (newService ? (
-                <div className="catalog-create-service">
-                  <h3>Novo serviço</h3>
-                  <p className="catalog-step-hint">
-                    Será associado a {current.name.trim()} e salvo com a equipe.
-                  </p>
-                  <ServiceFields value={newService} onChange={setNewService} />
-                  <div className="catalog-inline-actions">
-                    <button
-                      type="button"
-                      className="button secondary small"
-                      onClick={() => {
-                        setNewService(null);
-                        setError('');
-                      }}
-                    >
-                      Cancelar
-                    </button>
-                    <button className="button primary small">
-                      <Check size={15} /> Adicionar serviço
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="catalog-editor-toolbar">
-                    {people.length > 1 ? (
-                      <label className="catalog-assignee">
-                        Profissional
-                        <select
-                          value={current.key}
-                          onChange={(event) => setSelectedKey(event.target.value)}
+            {section === 'services' && (
+              <div className="catalog-assignment">
+                {people.length > 1 && (
+                  <aside className="catalog-assignment-roster" aria-label="Profissionais da equipe">
+                    <h3>Equipe</h3>
+                    <div className="catalog-assignment-people">
+                      {people.map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          aria-pressed={item.key === current.key}
+                          disabled={!!newService}
+                          onClick={() => {
+                            setSelectedKey(item.key);
+                            setError('');
+                          }}
                         >
-                          {people.map((item) => (
-                            <option key={item.key} value={item.key}>
-                              {item.name} · {item.services.length} serviços
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ) : (
+                          <span className="catalog-assignment-initial" aria-hidden="true">
+                            {item.name.trim().slice(0, 1).toUpperCase()}
+                          </span>
+                          <span className="catalog-assignment-person">
+                            <strong>{item.name.trim()}</strong>
+                            <small>
+                              {item.services.length === 1
+                                ? '1 serviço'
+                                : item.services.length + ' serviços'}
+                            </small>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+                )}
+                <section
+                  className="catalog-assignment-panel"
+                  aria-labelledby="catalog-assignment-title"
+                >
+                  {newService ? (
+                    <div className="catalog-create-service">
+                      <h3 id="catalog-assignment-title">Novo serviço</h3>
                       <p className="catalog-step-hint">
-                        Selecione os serviços que {current.name.trim()} oferece.
+                        Será associado a {current.name.trim()} e salvo com a equipe.
                       </p>
-                    )}
-                    {draftServices.length < 50 && (
-                      <button
-                        type="button"
-                        className="button secondary small"
-                        onClick={() => setNewService(blankService())}
-                      >
-                        <Plus size={16} /> Novo serviço
-                      </button>
-                    )}
-                  </div>
-                  <ServiceSelector
-                    key={current.key}
-                    options={serviceOptions}
-                    selected={current.services}
-                    onChange={(services) => update(current.key, { services })}
-                  />
-                  {people.length > 1 && current.services.length > 0 && (
-                    <button
-                      type="button"
-                      className="text-link catalog-copy-services"
-                      onClick={() =>
-                        setPeople((items) =>
-                          items.map((item) => ({
-                            ...item,
-                            services: [...new Set([...item.services, ...current.services])],
-                          })),
-                        )
-                      }
-                    >
-                      <Copy size={15} /> Adicionar esta seleção a todos
-                    </button>
-                  )}
-                  {current.services.length > 0 && (
-                    <details className="catalog-editor-details" key={current.key}>
-                      <summary>
-                        Preços e durações específicos <ChevronDown size={15} />
-                      </summary>
-                      <p className="catalog-step-hint">
-                        Deixe em branco para usar o valor padrão do serviço.
-                      </p>
-                      <div className="catalog-overrides">
-                        {serviceOptions
-                          .filter((option) => current.services.includes(option.ref))
-                          .map((option) => {
-                            const value = current.service_overrides?.[option.ref] ?? {
-                              duration: null,
-                              sell_price: null,
-                            };
-                            function change(fields: Partial<typeof value>) {
-                              update(current.key, {
-                                service_overrides: {
-                                  ...current.service_overrides,
-                                  [option.ref]: { ...value, ...fields },
-                                },
-                              });
-                            }
-                            return (
-                              <div key={option.ref}>
-                                <strong>{option.name}</strong>
-                                <div className="form-grid">
-                                  <label>
-                                    Duração (min)
-                                    <input
-                                      type="number"
-                                      min={1}
-                                      max={1440}
-                                      step={1}
-                                      placeholder={String(option.duration)}
-                                      value={value.duration ?? ''}
-                                      onChange={(event) =>
-                                        change({
-                                          duration: event.target.value
-                                            ? Number(event.target.value)
-                                            : null,
-                                        })
-                                      }
-                                    />
-                                  </label>
-                                  <label>
-                                    Preço (R$)
-                                    <input
-                                      type="number"
-                                      min={0}
-                                      max={99999999.99}
-                                      step="0.01"
-                                      placeholder={option.sell_price}
-                                      value={value.sell_price ?? ''}
-                                      onChange={(event) =>
-                                        change({ sell_price: event.target.value || null })
-                                      }
-                                    />
-                                  </label>
-                                </div>
-                              </div>
-                            );
-                          })}
+                      <ServiceFields value={newService} onChange={setNewService} />
+                      <div className="catalog-inline-actions">
+                        <button
+                          type="button"
+                          className="button secondary small"
+                          onClick={() => {
+                            setNewService(null);
+                            setError('');
+                          }}
+                        >
+                          Cancelar
+                        </button>
+                        <button className="button primary small">
+                          <Check size={15} /> Adicionar serviço
+                        </button>
                       </div>
-                    </details>
+                    </div>
+                  ) : (
+                    <>
+                      <header className="catalog-assignment-header">
+                        <h3 id="catalog-assignment-title">Serviços de {current.name.trim()}</h3>
+                        {draftServices.length < 50 && (
+                          <button
+                            type="button"
+                            className="button secondary small"
+                            onClick={() => setNewService(blankService())}
+                          >
+                            <Plus size={16} /> Novo serviço
+                          </button>
+                        )}
+                      </header>
+                      <ServiceSelector
+                        options={serviceOptions}
+                        selected={current.services}
+                        onChange={(services) => update(current.key, { services })}
+                      />
+                      {people.length > 1 && current.services.length > 0 && (
+                        <button
+                          type="button"
+                          className="text-link catalog-copy-services"
+                          onClick={() =>
+                            setPeople((items) =>
+                              items.map((item) => ({
+                                ...item,
+                                services: [...new Set([...item.services, ...current.services])],
+                              })),
+                            )
+                          }
+                        >
+                          <Copy size={15} /> Adicionar esta seleção a todos
+                        </button>
+                      )}
+                      {current.services.length > 0 && (
+                        <details className="catalog-editor-details">
+                          <summary>
+                            Preços e durações específicos <ChevronDown size={15} />
+                          </summary>
+                          <p className="catalog-step-hint">
+                            Deixe em branco para usar o valor padrão do serviço.
+                          </p>
+                          <div className="catalog-overrides">
+                            {serviceOptions
+                              .filter((option) => current.services.includes(option.ref))
+                              .map((option) => {
+                                const value = current.service_overrides?.[option.ref] ?? {
+                                  duration: null,
+                                  sell_price: null,
+                                };
+                                function change(fields: Partial<typeof value>) {
+                                  update(current.key, {
+                                    service_overrides: {
+                                      ...current.service_overrides,
+                                      [option.ref]: { ...value, ...fields },
+                                    },
+                                  });
+                                }
+                                return (
+                                  <div key={option.ref}>
+                                    <strong>{option.name}</strong>
+                                    <div className="form-grid">
+                                      <label>
+                                        Duração (min)
+                                        <input
+                                          type="number"
+                                          min={1}
+                                          max={1440}
+                                          step={1}
+                                          placeholder={String(option.duration)}
+                                          value={value.duration ?? ''}
+                                          onChange={(event) =>
+                                            change({
+                                              duration: event.target.value
+                                                ? Number(event.target.value)
+                                                : null,
+                                            })
+                                          }
+                                        />
+                                      </label>
+                                      <label>
+                                        Preço (R$)
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          max={99999999.99}
+                                          step="0.01"
+                                          placeholder={option.sell_price}
+                                          value={value.sell_price ?? ''}
+                                          onChange={(event) =>
+                                            change({ sell_price: event.target.value || null })
+                                          }
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </details>
+                      )}
+                    </>
                   )}
-                </>
-              ))}
+                </section>
+              </div>
+            )}
 
             {section === 'hours' && (
               <>
@@ -696,7 +716,7 @@ function ServiceSelector({
     <div className="catalog-selector">
       <div className="catalog-selector-head">
         <strong>
-          Serviços deste profissional <span>{selected.length}</span>
+          Selecionados <span>{selected.length}</span>
         </strong>
         <button
           type="button"
