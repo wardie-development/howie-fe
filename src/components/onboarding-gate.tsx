@@ -44,6 +44,8 @@ export default function OnboardingGate({
   const [launch, setLaunch] = useState<Launch | null>(null);
   const [retry, setRetry] = useState(0);
   const [sdkFailed, setSDKFailed] = useState(false);
+  const [showReconnect, setShowReconnect] = useState(false);
+  const needsReconnect = state.stage === 'whatsapp' && state.can_use_panel;
   const flow = useRef<{
     launch: Launch;
     code?: string;
@@ -85,7 +87,7 @@ export default function OnboardingGate({
     if (profile.onboarding) setState(profile.onboarding);
   }, [profile.onboarding]);
   useEffect(() => {
-    if (state.stage !== 'whatsapp' || !available) return;
+    if (state.stage !== 'whatsapp' || !available || (needsReconnect && !showReconnect)) return;
     let canceled = false;
     setLaunch(null);
     setSDKFailed(false);
@@ -113,7 +115,7 @@ export default function OnboardingGate({
       canceled = true;
       clearTimeout(expiry);
     };
-  }, [state.stage, available, retry]);
+  }, [state.stage, available, retry, needsReconnect, showReconnect]);
 
   async function finish() {
     const current = flow.current;
@@ -140,7 +142,8 @@ export default function OnboardingGate({
       });
       flow.current = null;
       setState(result.onboarding);
-      router.replace('/app/agentes');
+      setShowReconnect(false);
+      if (!needsReconnect) router.replace('/app/agentes');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível concluir a conexão.');
@@ -245,6 +248,18 @@ export default function OnboardingGate({
     pathname.startsWith('/app/suporte/')
   )
     return children;
+  if (needsReconnect && !showReconnect)
+    return (
+      <>
+        <aside className="onboarding-note reconnect-notice" aria-label="Conexão com o WhatsApp">
+          <span>O WhatsApp está desconectado. Agenda e financeiro continuam disponíveis.</span>
+          <button className="button secondary small" onClick={() => setShowReconnect(true)}>
+            Reconectar WhatsApp
+          </button>
+        </aside>
+        {children}
+      </>
+    );
   if (state.stage === 'email' && profile.email_verification)
     return <VerifyEmailGate initial={profile.email_verification} />;
   const waiting = state.stage === 'pending';
@@ -253,16 +268,28 @@ export default function OnboardingGate({
     <main className="onboarding-page">
       <header className="onboarding-top">
         <Brand />
-        <button className="button ghost small" disabled={busy} onClick={logout}>
-          <LogOut size={16} /> Sair
-        </button>
+        {needsReconnect ? (
+          <button className="button ghost small" disabled={busy || processing} onClick={() => setShowReconnect(false)}>
+            Voltar ao painel
+          </button>
+        ) : (
+          <button className="button ghost small" disabled={busy} onClick={logout}>
+            <LogOut size={16} /> Sair
+          </button>
+        )}
       </header>
       <div className="onboarding-wrap">
-        <p className="eyebrow">BEM-VINDO AO BETTER</p>
+          {!needsReconnect && <p className="eyebrow">BEM-VINDO AO BETTER</p>}
         <h1>
-          Seu próximo passo
-          <br />
-          <span>para atender melhor.</span>
+            {needsReconnect ? (
+              'Reconectar WhatsApp'
+            ) : (
+              <>
+                Seu próximo passo
+                <br />
+                <span>para atender melhor.</span>
+              </>
+            )}
         </h1>
         <p className="onboarding-intro">
           {profile.user.name.split(' ')[0]}, estamos preparando o espaço de {profile.company.name}.
@@ -312,7 +339,7 @@ export default function OnboardingGate({
                 ? 'Entre em contato com a equipe Better para saber como retomar seu acesso.'
                 : 'Conecte o número do seu negócio pelo ambiente seguro da Meta. Você poderá continuar usando o WhatsApp Business no celular.'}
           </p>
-          {!waiting && !suspended && (
+          {!waiting && !suspended && !needsReconnect && (
             <div className="onboarding-note">
               <ShieldCheck size={19} />
               <span>

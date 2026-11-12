@@ -4713,6 +4713,13 @@ fieldset {
   flex-shrink: 0;
   margin-top: 2px;
 }
+.reconnect-notice {
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-radius: 0;
+  margin-bottom: 0;
+}
 .onboarding-support {
   font-size: 13px;
   color: #748392;
