@@ -35,54 +35,66 @@ function NotificationIcon({ kind }: { kind: string }) {
 export function NotificationBell() {
   const router = useRouter();
   const [data, setData] = useState<Inbox | null>(null),
+    [unreadCount, setUnreadCount] = useState(0),
     [open, setOpen] = useState(false),
     [error, setError] = useState(''),
     [marking, setMarking] = useState(false);
   const container = useRef<HTMLDivElement>(null),
     button = useRef<HTMLButtonElement>(null),
-    inFlight = useRef(false),
+    refreshNow = useRef<() => void>(() => {}),
     failures = useRef(0),
     nextAttempt = useRef(0);
-  async function refresh(force = false) {
-    if (
-      inFlight.current ||
-      document.visibilityState === 'hidden' ||
-      (!force && Date.now() < nextAttempt.current)
-    )
-      return;
-    inFlight.current = true;
-    try {
-      setData(await api<Inbox>('notifications/'));
-      setError('');
-      failures.current = 0;
-      nextAttempt.current = 0;
-    } catch {
-      failures.current += 1;
-      nextAttempt.current =
-        Date.now() + Math.min(300000, 30000 * 2 ** Math.min(4, failures.current));
-      setError('Não foi possível atualizar os avisos.');
-    } finally {
-      inFlight.current = false;
-    }
-  }
   useEffect(() => {
-    let mounted = true;
-    const tick = () => {
-      if (mounted) void refresh();
-    };
-    tick();
+    let pending: AbortController | undefined;
+    async function refresh(force = false) {
+      if (document.visibilityState === 'hidden') return;
+      if (!force && (pending || Date.now() < nextAttempt.current)) return;
+      pending?.abort();
+      const controller = new AbortController();
+      pending = controller;
+      const { signal } = controller;
+      try {
+        if (open) {
+          const inbox = await api<Inbox>('notifications/', { signal });
+          if (signal.aborted) return;
+          setData(inbox);
+          setUnreadCount(inbox.unread_count);
+        } else {
+          const summary = await api<Pick<Inbox, 'unread_count'>>('notifications/?count_only=true', {
+            signal,
+          });
+          if (signal.aborted) return;
+          setUnreadCount(summary.unread_count);
+        }
+        setError('');
+        failures.current = 0;
+        nextAttempt.current = 0;
+      } catch {
+        if (signal.aborted) return;
+        failures.current += 1;
+        nextAttempt.current =
+          Date.now() + Math.min(300000, 30000 * 2 ** Math.min(4, failures.current));
+        setError('Não foi possível atualizar os avisos.');
+      } finally {
+        if (pending === controller) pending = undefined;
+      }
+    }
+    const tick = () => void refresh();
+    const forceRefresh = () => void refresh(true);
+    refreshNow.current = forceRefresh;
+    forceRefresh();
     const timer = window.setInterval(tick, 30000);
     window.addEventListener('focus', tick);
-    window.addEventListener('better-inbox-changed', tick);
+    window.addEventListener('better-inbox-changed', forceRefresh);
     document.addEventListener('visibilitychange', tick);
     return () => {
-      mounted = false;
+      pending?.abort();
       clearInterval(timer);
       window.removeEventListener('focus', tick);
-      window.removeEventListener('better-inbox-changed', tick);
+      window.removeEventListener('better-inbox-changed', forceRefresh);
       document.removeEventListener('visibilitychange', tick);
     };
-  }, []);
+  }, [open]);
   useEffect(() => {
     if (!open) return;
     const pointer = (e: PointerEvent) => {
@@ -130,18 +142,18 @@ export function NotificationBell() {
       <button
         ref={button}
         className={`notification-bell ${open ? 'open' : ''}`}
-        aria-label={`Notificações${data?.unread_count ? `, ${data.unread_count} não lidas` : ''}`}
+        aria-label={`Notificações${unreadCount ? `, ${unreadCount} não lidas` : ''}`}
         aria-expanded={open}
         aria-controls="notification-popover"
         onClick={() => {
+          if (!open) setData(null);
           setOpen(!open);
-          if (!open) void refresh(true);
         }}
       >
         <Bell size={20} />
-        {!!data?.unread_count && (
+        {!!unreadCount && (
           <span className="notification-count">
-            {data.unread_count > 99 ? '99+' : data.unread_count}
+            {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
@@ -155,7 +167,7 @@ export function NotificationBell() {
             <div>
               <h2>Seu negócio em movimento</h2>
               <p>
-                {data?.unread_count ? `${data.unread_count} avisos não lidos` : 'Você está em dia.'}
+                {unreadCount ? `${unreadCount} avisos não lidos` : 'Você está em dia.'}
               </p>
             </div>
             <button
@@ -170,7 +182,7 @@ export function NotificationBell() {
           {error && (
             <div className="notification-fetch-error">
               <p role="alert">{error}</p>
-              <button className="text-link" onClick={() => refresh(true)}>
+              <button className="text-link" onClick={() => refreshNow.current()}>
                 <RefreshCw size={14} />
                 Tentar novamente
               </button>
